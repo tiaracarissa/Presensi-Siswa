@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART PRESENSI - SMAN 1 Sleman</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- HTML5 QR Code Scanner -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <style>
+        /* Animasi kustom untuk Pop-up */
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-zoom-in {
+            animation: zoomIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ==========================================
+        // 1. DATA SISWA & KONFIGURASI
+        // ==========================================
+        const STUDENTS = [
+            {nis: "13851", name: "ADINDA DZAKIA WIBOWO", kelas: "10-A"},
+{nis: "13852", name: "AGUSTINA MEYLANI PUTRI", kelas: "10-A"},
+{nis: "13853", name: "AIRA INDAH PUSPITA EFFENDY", kelas: "10-A"},
+{nis: "13854", name: "ALIFA MUFIDA", kelas: "10-A"},
+{nis: "13855", name: "ALVINO HEIDY HANIAN", kelas: "10-A"},
+{nis: "13856", name: "ANGGITA AMRANANI", kelas: "10-A"},
+{nis: "13857", name: "ANTONIUS DWI BAGUS WICAKSANA", kelas: "10-A"},
+{nis: "13858", name: "AUDREYY ANDHAREVA MAVIE", kelas: "10-A"},
+{nis: "13860", name: "AURELLIA LUSIANA NURJANNAH", kelas: "10-A"},
+{nis: "13861", name: "AYDINA FATHI KHALISA", kelas: "10-A"},
+{nis: "13862", name: "BRIGITTA RACLEIFFINA IRWANTO", kelas: "10-A"},
+{nis: "13863", name: "CLARA ELANY BUDYASTAMI", kelas: "10-A"},
+{nis: "13864", name: "DANIEL VIDION REANDA", kelas: "10-A"},
+{nis: "13865", name: "DEVIONA AYUTIRTA PRABOWO", kelas: "10-A"},
+{nis: "13866", name: "FARIDA KURNIAWATI", kelas: "10-A"},
+{nis: "13867", name: "FRANSISCO BENEDICTO RADITYA GADAFILIA ADEKUSUMA", kelas: "10-A"},
+{nis: "13868", name: "GERARDA DEA RUSPASARI", kelas: "10-A"},
+{nis: "13869", name: "Hanif Nur Rahmawati", kelas: "10-A"},
+{nis: "13870", name: "HUMAIRA DIANDRA AYU PRASETYO", kelas: "10-A"},
+{nis: "13871", name: "JUAN DELANO WIDYADANA", kelas: "10-A"},
+{nis: "13872", name: "KHAIRANI AL PALIMBANI", kelas: "10-A"},
+{nis: "13873", name: "MARIA ALICIA KANAYA PUTRI", kelas: "10-A"},
+{nis: "13874", name: "MEYSEILA SIFAUNNAFISA", kelas: "10-A"},
+{nis: "13875", name: "MUHAMMAD AHNAF FATHAN MUBINA", kelas: "10-A"},
+{nis: "13876", name: "NADILA PUTRI ARIYANI", kelas: "10-A"},
+{nis: "13877", name: "NADINDRA KIRANA PUTRI", kelas: "10-A"},
+{nis: "13878", name: "NAYLA SEKAR LARASATI", kelas: "10-A"},
+{nis: "13879", name: "RAAHEEL KHALIZA PUTRI", kelas: "10-A"},
+{nis: "13880", name: "RADHII PAMBUDI", kelas: "10-A"},
+{nis: "13881", name: "SALWA LAISYA RAIHAANUN", kelas: "10-A"},
+{nis: "13882", name: "SHAFIRA DWI RIANI", kelas: "10-A"},
+{nis: "13883", name: "THEOPHILA ANGGUN MITAYANI", kelas: "10-A"},
+{nis: "13884", name: "VIKA SYAIRA HERAWATI", kelas: "10-A"},
+{nis: "13885", name: "YULIANUS DHANI KURNIAWAN", kelas: "10-A"},
+{nis: "13886", name: "YUSUF FAJAR PRATAMA", kelas: "10-A"},
+{nis: "13887", name: "ZIDAN WIDYANT PRASETYO", kelas: "10-A"},
+{nis: "13888", name: "ADHWA 'AQILLAH NOERHARDIYANI", kelas: "10-B"},
+{nis: "13889", name: "ADVENTIA OLINE YESLIN CADISA", kelas: "10-B"},
+{nis: "13890", name: "AISYAH DINI ALMASEVI", kelas: "10-B"},
+{nis: "13891", name: "AMALIA DWI NURAINI", kelas: "10-B"},
+{nis: "13892", name: "ANDINKA ARLITA PUTRI", kelas: "10-B"},
+{nis: "13893", name: "ANGGITA ZOYA NURSYAFA", kelas: "10-B"},
+{nis: "13894", name: "AQILA SALWA NUR AINI SYIFA", kelas: "10-B"},
+{nis: "13895", name: "ARINDA INTAN CAHYA PUTRI", kelas: "10-B"},
+{nis: "13896", name: "ASYIFA KHAIRUNISA SUKMAWAN", kelas: "10-B"},
+{nis: "13897", name: "AZZAM KAMIL BAIHAQI", kelas: "10-B"},
+{nis: "13898", name: "AZZAM MUBAROQ", kelas: "10-B"},
+{nis: "13899", name: "BUNGA INDAH CAHYANINGRUM", kelas: "10-B"},
+{nis: "13900", name: "CHRISTINE AYU OKTAVIANI", kelas: "10-B"},
+{nis: "13901", name: "DEVI KINARYOSI", kelas: "10-B"},
+{nis: "13902", name: "DINARA YAFI KAMILA", kelas: "10-B"},
+{nis: "13903", name: "GHAILAN RAJATA PRADITYA", kelas: "10-B"},
+{nis: "13904", name: "HAFIZH NOER ISNAINI", kelas: "10-B"},
+{nis: "13905", name: "HASNA' AZZAH RAFIDAH", kelas: "10-B"},
+{nis: "13906", name: "KELVIN APRILIA SUSANTO", kelas: "10-B"},
+{nis: "13907", name: "KHAIDIRA DUAN NAHL", kelas: "10-B"},
+{nis: "13908", name: "LUTHFIA MUTIARA TSANI", kelas: "10-B"},
+{nis: "13909", name: "LYRANA SCARLETTA AZIMI", kelas: "10-B"},
+{nis: "13910", name: "MUHAMAD RAIHAN ADI WIJAYA", kelas: "10-B"},
+{nis: "13911", name: "MUHAMMAD ANZA AL-BARI ESFAHAN", kelas: "10-B"},
+{nis: "13912", name: "MUHAMMAD AQILLA RAVAEZA AKRAM", kelas: "10-B"},
+{nis: "13913", name: "MUHAMMAD YUSUF ASSALAM", kelas: "10-B"},
+{nis: "13914", name: "NAJWA NAURA ANNISA", kelas: "10-B"},
+{nis: "13915", name: "NAZIFA ALYA HAPSARI", kelas: "10-B"},
+{nis: "13916", name: "PUTRI KEYSHA KINETIKA", kelas: "10-B"},
+{nis: "13917", name: "QIZA RIZQI RAMADANI PUTRI NURYANTO", kelas: "10-B"},
+{nis: "13918", name: "RA. NURMACITA KHAIRA LABIBA", kelas: "10-B"},
+{nis: "13919", name: "RAMADHAN", kelas: "10-B"},
+{nis: "13920", name: "SAFIRA SAFINATUN KHASANAH", kelas: "10-B"},
+{nis: "13921", name: "TRANGING MANAH", kelas: "10-B"},
+{nis: "13922", name: "VANIA GITTA RAMADHANI", kelas: "10-B"},
+{nis: "13923", name: "ZAINATHA KUSTARIANA", kelas: "10-B"},
+{nis: "13924", name: "AFUAN RAMADHANI FAUZIARTA", kelas: "10-C"},
+{nis: "13925", name: "AGNETA ROSALIA IZZATUNIZA", kelas: "10-C"},
+{nis: "13926", name: "ALIFA AZKA AULIA", kelas: "10-C"},
+{nis: "13927", name: "ALMIRA EVA AULIA", kelas: "10-C"},
+{nis: "13928", name: "AMIRA ELMA TSAQIFA", kelas: "10-C"},
+{nis: "13929", name: "ANSYHAR KAYSAN SYAHRIR", kelas: "10-C"},
+{nis: "13930", name: "ARYA KUSUMA SAPUTRA", kelas: "10-C"},
+{nis: "13931", name: "CINDY RESTU ARDELIA", kelas: "10-C"},
+{nis: "13932", name: "DITO IRFANDI ADITYA", kelas: "10-C"},
+{nis: "13933", name: "DZAKA FAHLEVI ARYAPUTRA", kelas: "10-C"},
+{nis: "13934", name: "FAUZIAH DWI RAHMADANI", kelas: "10-C"},
+{nis: "13935", name: "FAYYADH ALGHIFARI", kelas: "10-C"},
+{nis: "13936", name: "HELMINA CLARINTA DAMERO SINAGA", kelas: "10-C"},
+{nis: "13937", name: "KARISMA UNIKE PADY PUTRI", kelas: "10-C"},
+{nis: "13938", name: "KINANTI DYANDRA ASMARA", kelas: "10-C"},
+{nis: "13939", name: "LAILATUS NUR AMALIA", kelas: "10-C"},
+{nis: "13940", name: "LATIFAH NILAM RAMADHANI", kelas: "10-C"},
+{nis: "13941", name: "LINDA NURCAHYANI", kelas: "10-C"},
+{nis: "13942", name: "LINGGA MONICA PUTRI JOVANKA", kelas: "10-C"},
+{nis: "13943", name: "LINTANG KARUNIA INSANI", kelas: "10-C"},
+{nis: "13944", name: "LUTFIA MUFIDA HIDAYAT", kelas: "10-C"},
+{nis: "13945", name: "MALIKA RIZKY AMALIA", kelas: "10-C"},
+{nis: "13946", name: "MICHAEL KEVANO PUTRA YUNARKO", kelas: "10-C"},
+{nis: "13947", name: "MUHAMMAD IHSAN RAFIF ABDUR RASYID", kelas: "10-C"},
+{nis: "13948", name: "NADHIF AIDAN ATALLAH", kelas: "10-C"},
+{nis: "13949", name: "NAJWAA ANIS SAFITRI", kelas: "10-C"},
+{nis: "13950", name: "NASYWA SALSABILA", kelas: "10-C"},
+{nis: "13951", name: "NAUFAL RAFA AKMAL RADITHYA", kelas: "10-C"},
+{nis: "13952", name: "NIRBITA CALYA RAHMADANI", kelas: "10-C"},
+{nis: "13953", name: "NOVA ELVITA ZAHRA", kelas: "10-C"},
+{nis: "13954", name: "PRISDAMURTI BUDI NASTITI", kelas: "10-C"},
+{nis: "13955", name: "QUEENSA ARDHIANA MUTIARA KHATULISTIWA", kelas: "10-C"},
+{nis: "13956", name: "QUINNSA EDGINA MANGGALI", kelas: "10-C"},
+{nis: "13957", name: "RANGGA ADITYA PRATAMA", kelas: "10-C"},
+{nis: "13958", name: "RHEA CALYA ASHADEWI", kelas: "10-C"},
+{nis: "13959", name: "VARADHITA SHABIRA ARRASYA", kelas: "10-C"},
+{nis: "13960", name: "ABDURRACHMAN DZAKWAN USLAHWASATA", kelas: "10-D"},
+{nis: "13961", name: "ALISKA BUNGA CANTIKA", kelas: "10-D"},
+{nis: "13962", name: "ANDIKA FARIZKA WIJAYA", kelas: "10-D"},
+{nis: "13963", name: "AQELA NUR NADYA SHAFWAH", kelas: "10-D"},
+{nis: "13964", name: "ARDZAKI DIMAS SATYA AJI", kelas: "10-D"},
+{nis: "13965", name: "ARIFUDIN MANGGALA PUTRA", kelas: "10-D"},
+{nis: "13966", name: "ARLINTANG RANDY PUTRI UDAYANI", kelas: "10-D"},
+{nis: "13967", name: "AYU AMELIA SURYA ASMARA", kelas: "10-D"},
+{nis: "13968", name: "CESALIA RAMADANI", kelas: "10-D"},
+{nis: "13969", name: "CHANDANI MAHESWARI", kelas: "10-D"},
+{nis: "13970", name: "DEWINA NAJWA FAIRUZY", kelas: "10-D"},
+{nis: "13971", name: "DEWINA SERUNI WIDYA PRASTANTI", kelas: "10-D"},
+{nis: "13972", name: "DHIRA MAHARDHIKA AKHMAD", kelas: "10-D"},
+{nis: "13973", name: "FAJAR HAMDAN NAIM", kelas: "10-D"},
+{nis: "13974", name: "FARRELL HASANI MUSTAFID SAPUTRA", kelas: "10-D"},
+{nis: "13975", name: "KALIFIA LIRMAHSARI PUTRI", kelas: "10-D"},
+{nis: "13976", name: "KAYLA ADIBA TUFFAHATI", kelas: "10-D"},
+{nis: "13977", name: "KIRANA APRILIA LISANDRA", kelas: "10-D"},
+{nis: "13978", name: "LUTHFI ERANTIO NUGRAHA", kelas: "10-D"},
+{nis: "13979", name: "MAHARANI PUJI ASTUTI", kelas: "10-D"},
+{nis: "13980", name: "MARIANA CAHYA WULANSARI", kelas: "10-D"},
+{nis: "13981", name: "NABILA ARDIANA PUTRI RIYANTO", kelas: "10-D"},
+{nis: "13982", name: "NADHIRA SYIFA LISTYANINGSIH", kelas: "10-D"},
+{nis: "13983", name: "NAJWA AZ ZAHRA RAMADANI", kelas: "10-D"},
+{nis: "13984", name: "NAJWA NURRAHMA SALSABILA", kelas: "10-D"},
+{nis: "13985", name: "NAQUITA SAKHI NUGROHO", kelas: "10-D"},
+{nis: "13986", name: "NAYLA RAMADHANI PUTRI NOTTY", kelas: "10-D"},
+{nis: "13987", name: "NORMALITA ILHAM NUSA BHAKTI", kelas: "10-D"},
+{nis: "13988", name: "RADITYA MARTDHIANSYAH", kelas: "10-D"},
+{nis: "13989", name: "RAIHAN LUKMAN HAKIM", kelas: "10-D"},
+{nis: "13990", name: "REENA BELA AZARIN", kelas: "10-D"},
+{nis: "13991", name: "RIO ADE SETYAWAN", kelas: "10-D"},
+{nis: "13992", name: "SABRINA LACITA RAMADHANI", kelas: "10-D"},
+{nis: "13993", name: "SAFA CHESA SAFITRI", kelas: "10-D"},
+{nis: "13994", name: "SALSABILA PARAMITA PALUPI", kelas: "10-D"},
+{nis: "13995", name: "SHIFA RAMADHANTI", kelas: "10-D"},
+{nis: "13996", name: "ABIYYAH RISMA DIASIHTA", kelas: "10-E"},
+{nis: "13997", name: "AHMADI ARYO PRADIPTO", kelas: "10-E"},
+{nis: "13998", name: "AISHA KAYLA RAMADHANTI", kelas: "10-E"},
+{nis: "13999", name: "ALEXA ARISMA ANG", kelas: "10-E"},
+{nis: "14000", name: "ANOM NUR HADIATMAJA", kelas: "10-E"},
+{nis: "14001", name: "ARFA AMELIA INSANI", kelas: "10-E"},
+{nis: "14002", name: "ARLIN ZAFIRA KURNIAWAN", kelas: "10-E"},
+{nis: "14003", name: "AZ ZAHRA DELFA ARFEBRIYAN", kelas: "10-E"},
+{nis: "14004", name: "CITRA NALA HAMIZAH", kelas: "10-E"},
+{nis: "14005", name: "CLEO EVELYN RAMADHANI", kelas: "10-E"},
+{nis: "14006", name: "DAVRILA WILLY PRASASTI", kelas: "10-E"},
+{nis: "14007", name: "DEVINA AISA LIONG", kelas: "10-E"},
+{nis: "14008", name: "DINI MAUHIBA DZAKY", kelas: "10-E"},
+{nis: "14009", name: "FATHIYYA YASMIN", kelas: "10-E"},
+{nis: "14010", name: "FATIHAH AZA NADA RAMADANI", kelas: "10-E"},
+{nis: "14011", name: "GUSTI YUDA PRAWIRA", kelas: "10-E"},
+{nis: "14012", name: "IMAWAN MUJAHID MUHAMMADI", kelas: "10-E"},
+{nis: "14013", name: "JASAROH KAROMAH", kelas: "10-E"},
+{nis: "14014", name: "KYNTHIA JANITRA GANTARI", kelas: "10-E"},
+{nis: "14015", name: "MUCHAMMAD RAFA ABIYA RAMADHAN", kelas: "10-E"},
+{nis: "14016", name: "MUHAMMAD BAGUS FIRGIAWAN", kelas: "10-E"},
+{nis: "14017", name: "MUHAMMAD DAEGAL HILMI ARYASUTA", kelas: "10-E"},
+{nis: "14018", name: "NAJWA ALTHAFIA PUJIAJI", kelas: "10-E"},
+{nis: "14019", name: "NURRAFA' DAFFITO FAHRIZAL", kelas: "10-E"},
+{nis: "14020", name: "PUTRI ASTRI FINANDA", kelas: "10-E"},
+{nis: "14021", name: "PUTRI SALWA NURAINI", kelas: "10-E"},
+{nis: "14022", name: "RAFIQA ZAHRATUNNISA", kelas: "10-E"},
+{nis: "14023", name: "RENITA NOVARISA ARSHANDA", kelas: "10-E"},
+{nis: "14024", name: "RIVANNO KUSUMA PUTRA", kelas: "10-E"},
+{nis: "14025", name: "RIZKI TIARA MAULIDHANI SUHARTANA", kelas: "10-E"},
+{nis: "14026", name: "SEKAR AYU CAHYANINGTIYAS", kelas: "10-E"},
+{nis: "14027", name: "SHAFIRA NATHANIA AZAHRA", kelas: "10-E"},
+{nis: "14028", name: "SYAFIRA ADISTI PUSPITA", kelas: "10-E"},
+{nis: "14029", name: "TALITHA CERYL NASYWA PUJIANSYAH", kelas: "10-E"},
+{nis: "14030", name: "VIRAYA NIKITA ANSORI", kelas: "10-E"},
+{nis: "14031", name: "WISNU AULIA BAKTI", kelas: "10-E"},
+{nis: "14032", name: "AFIDATUS SOLICHATUN", kelas: "10-F"},
+{nis: "14033", name: "ALHAQIE", kelas: "10-F"},
+{nis: "14034", name: "ALIMA NAFIA SAMARA", kelas: "10-F"},
+{nis: "14035", name: "ALIYA GHASSANI", kelas: "10-F"},
+{nis: "14036", name: "ANGGITA SHELA MEYRADANI", kelas: "10-F"},
+{nis: "14037", name: "AQILA RAJWA PUTRI ARTA", kelas: "10-F"},
+{nis: "14038", name: "ARROYANI SUGI RAHARJA", kelas: "10-F"},
+{nis: "14039", name: "BANYU JATI PRASETYO HERJUNO", kelas: "10-F"},
+{nis: "14040", name: "BINTANG FATHAN INDRAYUDHA", kelas: "10-F"},
+{nis: "14041", name: "DANEYSYA YULIANA PRIHANTARI", kelas: "10-F"},
+{nis: "14042", name: "GAYUH ALFI ANGGRAENI", kelas: "10-F"},
+{nis: "14043", name: "GHAISANI QUINN NORIESDA QUROTAA'YUN", kelas: "10-F"},
+{nis: "14044", name: "GHI FAHRI MEYLANDRI", kelas: "10-F"},
+{nis: "14045", name: "HASNA AGATHA KHALILAH FARA", kelas: "10-F"},
+{nis: "14046", name: "HUMAIRA AISYAH AZ ZAHRA", kelas: "10-F"},
+{nis: "14047", name: "IKHLAS KHAIRUL AZZAM", kelas: "10-F"},
+{nis: "14048", name: "KAYLA AZZAHRA EL CHOIR", kelas: "10-F"},
+{nis: "14049", name: "KEISHA ANINDYA PUTRI", kelas: "10-F"},
+{nis: "14050", name: "KHANSA NADA", kelas: "10-F"},
+{nis: "14051", name: "LUTHFI INDRIYANI SHOLEH", kelas: "10-F"},
+{nis: "14052", name: "MAR'ATUN FITRIYAH", kelas: "10-F"},
+{nis: "14053", name: "MUHAMMAD RAYZAN PURNOMO", kelas: "10-F"},
+{nis: "14054", name: "NAUFAL RAFIF PRASETYA TANUWIJAYA", kelas: "10-F"},
+{nis: "14055", name: "NAYLA NAFISA ANANDANI", kelas: "10-F"},
+{nis: "14056", name: "NURIZA LAINATUS SHIFFA", kelas: "10-F"},
+{nis: "14057", name: "PANDU GABRIEL PRATAMA", kelas: "10-F"},
+{nis: "14058", name: "PANJI AZKA MADANI", kelas: "10-F"},
+{nis: "14059", name: "QONITA KHANSA ISKANDAR", kelas: "10-F"},
+{nis: "14060", name: "RADILLA NUR RAMADHANI", kelas: "10-F"},
+{nis: "14061", name: "RAISYA APRILIA", kelas: "10-F"},
+{nis: "14062", name: "RAZANA ALTAFIA RAMADHANI HERMAWAN", kelas: "10-F"},
+{nis: "14063", name: "RICKO MAULANA HARIS", kelas: "10-F"},
+{nis: "14064", name: "USWATUN KHASANAH", kelas: "10-F"},
+{nis: "14065", name: "VANESSA RORO ANGGRAINI", kelas: "10-F"},
+{nis: "14066", name: "VRILA ZAHRA MAULIDINA", kelas: "10-F"},
+{nis: "14067", name: "YUANITA OKTAVIANI PUTRI", kelas: "10-F"},
+{nis: "14068", name: "ADDINA NUR KHARISA INDRASWARI", kelas: "10-G"},
+{nis: "14069", name: "ADHWA NURISTA RADIN", kelas: "10-G"},
+{nis: "14070", name: "ANGGUN FEBRIANTI", kelas: "10-G"},
+{nis: "14071", name: "AQILA ILAYKA ASYKUU", kelas: "10-G"},
+{nis: "14072", name: "ASHFA FAUZI ROKHMAN", kelas: "10-G"},
+{nis: "14073", name: "AYUHANA KHAIRUL NABILA", kelas: "10-G"},
+{nis: "14074", name: "AZIZAH NURUL AMRI", kelas: "10-G"},
+{nis: "14075", name: "CANTIKA MUTIARA DWI RAMADANI", kelas: "10-G"},
+{nis: "14076", name: "CHIARRA SHAREEN NAYRAYA", kelas: "10-G"},
+{nis: "14077", name: "ELVIRA QURATUL ATIKA CHAFID", kelas: "10-G"},
+{nis: "14078", name: "FAIZA AZKA ANGGITA RAMADHANI", kelas: "10-G"},
+{nis: "14079", name: "HANIFA RISTI YULFIANI", kelas: "10-G"},
+{nis: "14080", name: "HAYYUNAIFA QUINN ZADA EARLENE", kelas: "10-G"},
+{nis: "14081", name: "IBRAHIM RAFIF HADI WARDOYO", kelas: "10-G"},
+{nis: "14082", name: "INSANIA SANTUN", kelas: "10-G"},
+{nis: "14083", name: "JASMINE AYESHA KAMIL", kelas: "10-G"},
+{nis: "14084", name: "KEVIN HILMI NOVANDITO", kelas: "10-G"},
+{nis: "14085", name: "KEYLA AZZAHRA PUTRI ARIANA", kelas: "10-G"},
+{nis: "14086", name: "MAYLANA CANTIKA PUTRI", kelas: "10-G"},
+{nis: "14087", name: "MUHAMMAD AMMAR", kelas: "10-G"},
+{nis: "14088", name: "MUHAMMAD FAIZAL FAIZ", kelas: "10-G"},
+{nis: "14089", name: "MUHAMMAD FAZA RAFLI", kelas: "10-G"},
+{nis: "14090", name: "MUHAMMAD RAFKA PUTRA PRASETYA ANGGUN WIKAN WICAKSANA", kelas: "10-G"},
+{nis: "14091", name: "MUHAMMAD SYAUQI KARIZA AHYAN", kelas: "10-G"},
+{nis: "14092", name: "NAMIRA SAQINA ARNINDYA SUKIRNO", kelas: "10-G"},
+{nis: "14093", name: "NAURA BILQIS AHMADHILLA", kelas: "10-G"},
+{nis: "14094", name: "NAZA ZAHKIYA AGUSTI", kelas: "10-G"},
+{nis: "14095", name: "NIKEISHA NALA WIDYADHANA", kelas: "10-G"},
+{nis: "14096", name: "PANDAN AHZA ANANTA", kelas: "10-G"},
+{nis: "14097", name: "REIHAN MAULANA DZAKI", kelas: "10-G"},
+{nis: "14098", name: "SERLIANA RAMADHANTI", kelas: "10-G"},
+{nis: "14099", name: "SILVA RASYA SETYOWATI", kelas: "10-G"},
+{nis: "14100", name: "THALISSA CHINDAGA NAYOTTAMA", kelas: "10-G"},
+{nis: "14101", name: "TIAN SUCI RAMADHANI", kelas: "10-G"},
+{nis: "14102", name: "WIDARUNDINA DIKRATNAMA ANAKYA", kelas: "10-G"},
+{nis: "14103", name: "ZAHRA TUSITA NURTALIA", kelas: "10-G"},
+{nis: "13707", name: "ABDURRAHMAN ARYASATYA", kelas: "11-A"},
+{nis: "13816", name: "ADINDA DWI PUTRI ARDANA", kelas: "11-A"},
+{nis: "13709", name: "AILSA BELVA SYAHLA AZARIA", kelas: "11-A"},
+{nis: "13636", name: "ALMIRA AGHNI PRATIWI", kelas: "11-A"},
+{nis: "13712", name: "ANGGUN PRADITA AULIA PUTRI HAMIDAH", kelas: "11-A"},
+{nis: "13713", name: "ANNISA YUKI PRADANI", kelas: "11-A"},
+{nis: "13602", name: "ARDHANA INKA SETYAWAN", kelas: "11-A"},
+{nis: "13673", name: "ASKAROB AKBAR FAHRIZA", kelas: "11-A"},
+{nis: "13716", name: "CAHYA ETIKA SOFIYANI DEWI", kelas: "11-A"},
+{nis: "13606", name: "CITRA RISTANTI", kelas: "11-A"},
+{nis: "13829", name: "DESTA ARUM NASIFA NURAINI", kelas: "11-A"},
+{nis: "13721", name: "FAHIRA SEKAR TANJUNG", kelas: "11-A"},
+{nis: "13724", name: "FAUZARIQ NISMARA TYANANDA", kelas: "11-A"},
+{nis: "13833", name: "FIRA SILVIA GUSRINA", kelas: "11-A"},
+{nis: "13796", name: "HAFIDH DANU ARYOPATI SANTOSO", kelas: "11-A"},
+{nis: "13836", name: "HANIFAH PUTRI NUR HALIMAH", kelas: "11-A"},
+{nis: "13728", name: "ISNAN MAHFUD AGUNG FAIZAL", kelas: "11-A"},
+{nis: "13838", name: "KHOIRUL RIZKY", kelas: "11-A"},
+{nis: "13730", name: "KIRANA NADIA PUTRI", kelas: "11-A"},
+{nis: "13840", name: "KURNIATI SOLIKHAH", kelas: "11-A"},
+{nis: "13655", name: "MARSHELLINUS BAGUS DEWANTO", kelas: "11-A"},
+{nis: "13732", name: "MAURA MAHARANI", kelas: "11-A"},
+{nis: "13657", name: "MICHELLE LUNA APRIANS", kelas: "11-A"},
+{nis: "13694", name: "MUTHIA ZHARIFA TASNIM", kelas: "11-A"},
+{nis: "13660", name: "NAJMA UFUQI RAHMA", kelas: "11-A"},
+{nis: "13769", name: "NOVANA DWI ASTUTI", kelas: "11-A"},
+{nis: "13662", name: "NUR ROSHWAN ILYAS", kelas: "11-A"},
+{nis: "13807", name: "RADJA ARZAMORA MUZAKI", kelas: "11-A"},
+{nis: "13774", name: "RIFDA NADHIFA KAMELIA", kelas: "11-A"},
+{nis: "13665", name: "SHELIN MAULIDINA PUTRI MAHARANI", kelas: "11-A"},
+{nis: "13813", name: "SYAFA GENDHIS ANNAFI", kelas: "11-A"},
+{nis: "13666", name: "SYIFA PUTRI NAFSIANA", kelas: "11-A"},
+{nis: "13741", name: "TARA AYU KEZIA DIANDRA", kelas: "11-A"},
+{nis: "13632", name: "TARSISIUS EVAN MAHARDIKA PRASTYA", kelas: "11-A"},
+{nis: "13633", name: "TIARA CARISSA PUTRI", kelas: "11-A"},
+{nis: "13848", name: "VARA ELSA AURORA", kelas: "11-A"},
+{nis: "13744", name: "AHMAD MUZAKKY RISMAWAN AL FATTAHILLAH", kelas: "11-B"},
+{nis: "13745", name: "AHMAD SHOFWAN ABDILLAH", kelas: "11-B"},
+{nis: "13823", name: "ANNISA DWI YULIANI", kelas: "11-B"},
+{nis: "13780", name: "ARIQ MAULANA ZAKI", kelas: "11-B"},
+{nis: "13605", name: "AURELIA AZHAR LARASATI", kelas: "11-B"},
+{nis: "13785", name: "BRILIAN LATIF WIBOWO", kelas: "11-B"},
+{nis: "13753", name: "DAYINTA LAILY WIJAYANI", kelas: "11-B"},
+{nis: "13755", name: "DELLANOVA RAHADATUL 'AISYI", kelas: "11-B"},
+{nis: "13607", name: "DIAJENG YUVANE DUARDHANI", kelas: "11-B"},
+{nis: "13757", name: "DWIKI ZAKY APRILIANTO", kelas: "11-B"},
+{nis: "13720", name: "ERISA MEILANI KHOIRIYAH", kelas: "11-B"},
+{nis: "13791", name: "EWALDO MINZEKE", kelas: "11-B"},
+{nis: "13722", name: "FAHRILA FAZAKIR DETRIANA PUTI", kelas: "11-B"},
+{nis: "13609", name: "FAKHRUNISA NURYAN ISNA", kelas: "11-B"},
+{nis: "13723", name: "FATHONI CANDRA KUSUMA", kelas: "11-B"},
+{nis: "13792", name: "FATIKA KHOIRU NISA", kelas: "11-B"},
+{nis: "13760", name: "FRIDA NUR ZAZKIA RADISTY", kelas: "11-B"},
+{nis: "13650", name: "GATHAM AZIZ TAQWIM", kelas: "11-B"},
+{nis: "13834", name: "GILANG AL FAROZI", kelas: "11-B"},
+{nis: "13686", name: "IFANDA FITRA TAMA", kelas: "11-B"},
+{nis: "13652", name: "KENNY RAFAY MAHBEER", kelas: "11-B"},
+{nis: "13729", name: "KEVIN ADRIAN RAJENDRAKHA", kelas: "11-B"},
+{nis: "13800", name: "LATIFA NUR LISKA PUTRI", kelas: "11-B"},
+{nis: "13842", name: "MANGGOLO YUDO PUTRO LEGOWO", kelas: "11-B"},
+{nis: "13766", name: "MUHAMMAD ALIFIANTO AMANULLAH", kelas: "11-B"},
+{nis: "13843", name: "MUHAMMAD IBNU NADHIF MUFLIH", kelas: "11-B"},
+{nis: "13768", name: "NADIA AULIA SHAFA", kelas: "11-B"},
+{nis: "13661", name: "NASYA AULIA HAFIDAH", kelas: "11-B"},
+{nis: "13770", name: "NURUL AZKIYA MOZZA", kelas: "11-B"},
+{nis: "13698", name: "OKTAVIA NUR UTARI", kelas: "11-B"},
+{nis: "13771", name: "PANDU RASENDRYA ADHIYASTA AFGANI", kelas: "11-B"},
+{nis: "13776", name: "SHEVA ANDRIANO DHASILVA", kelas: "11-B"},
+{nis: "13705", name: "SHOFIA IRMA NUR AZIZAH", kelas: "11-B"},
+{nis: "13849", name: "VIENCYA FEMALESAN PUTRINALYA", kelas: "11-B"},
+{nis: "13706", name: "WIDYA SAPUTRI", kelas: "11-B"},
+{nis: "13742", name: "WIDYANA DAMARWATI", kelas: "11-B"},
+{nis: "13671", name: "ADITIYA KUSUMA PUTRA LISTIYO", kelas: "11-C"},
+{nis: "13599", name: "AGITYA FAIRUZ DZAKIYYA", kelas: "11-C"},
+{nis: "13639", name: "APRILIA LINTANG KARIENA", kelas: "11-C"},
+{nis: "13824", name: "ARIFAH PUTRI PRIANDANI", kelas: "11-C"},
+{nis: "13825", name: "ATHAYA YUMNA SAYIDA", kelas: "11-C"},
+{nis: "13752", name: "CHAISYA CHANDRA KIRANA HERMAWAN", kelas: "11-C"},
+{nis: "13644", name: "CHRISYA AYU PURNOMO", kelas: "11-C"},
+{nis: "13828", name: "DAANISH SYNNOVE ABDULLAH", kelas: "11-C"},
+{nis: "13717", name: "DAFFA MICHO SAPUTRA", kelas: "11-C"},
+{nis: "13788", name: "DN KENZIE JAVAS WISTARA", kelas: "11-C"},
+{nis: "13679", name: "FADHIL RAYHAN RADMANA", kelas: "11-C"},
+{nis: "13795", name: "FELYA AYUDHYA ANGGRAINI", kelas: "11-C"},
+{nis: "13725", name: "FEMBAYUN CAHYANINGTYAS", kelas: "11-C"},
+{nis: "13759", name: "FIRDIANA MILANI ASYIFA", kelas: "11-C"},
+{nis: "13684", name: "GABRIELLA OKTOVIDIA ESTININGRUM", kelas: "11-C"},
+{nis: "13688", name: "INDRA RAMADITYA AMA", kelas: "11-C"},
+{nis: "13798", name: "KHOLIFATUN FADHILLAH RACHMADANI", kelas: "11-C"},
+{nis: "13839", name: "KHUMAIRA NASHIFA", kelas: "11-C"},
+{nis: "13764", name: "LAILA AZZA DELILA", kelas: "11-C"},
+{nis: "13765", name: "MEISYAFILLA ARUM WULANDARI", kelas: "11-C"},
+{nis: "13656", name: "MEZALUNA CANDANA SAKHI FADANTYA", kelas: "11-C"},
+{nis: "13619", name: "MUHAMMAD RIZKY SAPUTRA", kelas: "11-C"},
+{nis: "13844", name: "NAAZNEEN NAFISAH RAHMAN", kelas: "11-C"},
+{nis: "13734", name: "NABILA KHOIRUNNISA'", kelas: "11-C"},
+{nis: "13620", name: "NAFLA LAILA ARIEQA NABIHHANA", kelas: "11-C"},
+{nis: "13735", name: "NIXON RAFIF PRAYOGA", kelas: "11-C"},
+{nis: "13806", name: "NURLITA PUSPITA SARI", kelas: "11-C"},
+{nis: "13736", name: "RAHMA AZAKHRA", kelas: "11-C"},
+{nis: "13626", name: "RIDHO AMINULLOH", kelas: "11-C"},
+{nis: "13701", name: "RIVANA BUNGA ASMARANI", kelas: "11-C"},
+{nis: "13739", name: "SALWA AMALA PUTRI", kelas: "11-C"},
+{nis: "13775", name: "SHAFA' AGHANIA GHASSANI FATHIN", kelas: "11-C"},
+{nis: "13740", name: "SHAKILA MEHERUNISSA RAINA WIDODO", kelas: "11-C"},
+{nis: "13812", name: "SHIRIN NASWA MADANI", kelas: "11-C"},
+{nis: "13630", name: "SYIFA ALIFATUL MAULIDA", kelas: "11-C"},
+{nis: "13850", name: "ZAHRA ARIF NUR ASYIFAH", kelas: "11-C"},
+{nis: "13635", name: "ACHMAD FARREL PRADITYA", kelas: "11-D"},
+{nis: "13817", name: "ADNAN YULIYANTO", kelas: "11-D"},
+{nis: "13746", name: "ALFITO DIMAS WIBOWO", kelas: "11-D"},
+{nis: "13779", name: "AL-GHAZY FAISA AHNAF", kelas: "11-D"},
+{nis: "13638", name: "ANISSA FARAHDILLAH", kelas: "11-D"},
+{nis: "13750", name: "ARRAFAD SARIF HIDAYAH", kelas: "11-D"},
+{nis: "13640", name: "AULIA RAHMAWATI", kelas: "11-D"},
+{nis: "13784", name: "AZMI HANA KHAIRUNNISA", kelas: "11-D"},
+{nis: "13641", name: "AZZAHRA KHOIRUNNISA RAMADHANI", kelas: "11-D"},
+{nis: "13754", name: "DEFANY FAUZIAH RACHMAWATI", kelas: "11-D"},
+{nis: "13786", name: "DIMAS CAHYO WIJOYO", kelas: "11-D"},
+{nis: "13756", name: "DIRACALISTA KUSSAFITRI", kelas: "11-D"},
+{nis: "13608", name: "DZAKIA HASNA FAUZIAH", kelas: "11-D"},
+{nis: "13645", name: "DZAKY ASKAR AL ARQOM", kelas: "11-D"},
+{nis: "13790", name: "ERLINA YULIANINGSIH", kelas: "11-D"},
+{nis: "13832", name: "FATAN ANSHORY", kelas: "11-D"},
+{nis: "13682", name: "FAWZAN APRIANSYAH", kelas: "11-D"},
+{nis: "13651", name: "IQBAL AGRA KEANDRA", kelas: "11-D"},
+{nis: "13613", name: "ISNA NURUL AZIZAH", kelas: "11-D"},
+{nis: "13615", name: "JONATHAN DEWA AGRISTANT PRABENDRA", kelas: "11-D"},
+{nis: "13797", name: "KEISA DEVITA RAHMANJANI", kelas: "11-D"},
+{nis: "13654", name: "MANUBENY YUSUF MULYA", kelas: "11-D"},
+{nis: "13617", name: "MAYRINDA LAKSANA PUTRI", kelas: "11-D"},
+{nis: "13801", name: "MESSIA AZALIA ZHAFIF", kelas: "11-D"},
+{nis: "13767", name: "MUTIARA NALURI DEWI", kelas: "11-D"},
+{nis: "13659", name: "NABILA MUKHBITA PUTRI", kelas: "11-D"},
+{nis: "13622", name: "NELA WATI NAZWA", kelas: "11-D"},
+{nis: "13846", name: "QIRANEVA ZAMNA GHEA NAREZTA", kelas: "11-D"},
+{nis: "13808", name: "RAHMAT ZAMHARIR QUROTU'AIN", kelas: "11-D"},
+{nis: "13624", name: "RAISSA SAFANA", kelas: "11-D"},
+{nis: "13625", name: "RANIA JASMINE RESPATRIA", kelas: "11-D"},
+{nis: "13664", name: "RENATHA AULIA PUTRI", kelas: "11-D"},
+{nis: "13702", name: "RIZKY NUGRAHA", kelas: "11-D"},
+{nis: "13809", name: "RIZQI GINELAR UNGGUL DAROJAD", kelas: "11-D"},
+{nis: "13814", name: "TYAGA MAHARKA YUSUF", kelas: "11-D"},
+{nis: "13669", name: "YEMIMA MAWAR SEPHA", kelas: "11-D"},
+{nis: "13711", name: "ANGGER SETYO WICAKSONO", kelas: "11-E"},
+{nis: "13747", name: "ANGGITA KURNIANDARI", kelas: "11-E"},
+{nis: "13822", name: "ANINDYA EARLY SYANDANA", kelas: "11-E"},
+{nis: "13672", name: "ANNIDA EDELWEISE NAKEYSHA ARIFIA", kelas: "11-E"},
+{nis: "13714", name: "ARETA FEBRIA HUWAIDA", kelas: "11-E"},
+{nis: "13604", name: "ARVIKA RIEFMA NURMALITA", kelas: "11-E"},
+{nis: "13782", name: "AUFA NUR FADILA", kelas: "11-E"},
+{nis: "13751", name: "AVISA AZALIA RAHMANINGRUM", kelas: "11-E"},
+{nis: "13675", name: "AYU DEWI LESTARI", kelas: "11-E"},
+{nis: "13783", name: "AZIFAH MUFASIHIN FATIYAH", kelas: "11-E"},
+{nis: "13715", name: "AZZAHRA NUR HABIBILLAH", kelas: "11-E"},
+{nis: "13676", name: "CICIT AYU TASYA", kelas: "11-E"},
+{nis: "13677", name: "DYAH RATRI ARIYANI", kelas: "11-E"},
+{nis: "13789", name: "ELMEIRA ANAS", kelas: "11-E"},
+{nis: "13680", name: "FAIRUZ DINIAN ZAKI", kelas: "11-E"},
+{nis: "13681", name: "FALISHA YASMIN", kelas: "11-E"},
+{nis: "13793", name: "FAUNISA LATIF", kelas: "11-E"},
+{nis: "13683", name: "FRANSISKA MAGAMITA", kelas: "11-E"},
+{nis: "13726", name: "FUNAEKA AHZA RAHMATU", kelas: "11-E"},
+{nis: "13611", name: "GITA ALENA ZHARIIF", kelas: "11-E"},
+{nis: "13612", name: "INNESA NATHANIA KUSMANTO", kelas: "11-E"},
+{nis: "13690", name: "KEISYA HYACINTHA RAMADANI SALSABILA", kelas: "11-E"},
+{nis: "13691", name: "LINTANG AJI PANGESTU", kelas: "11-E"},
+{nis: "13693", name: "MANDEGANI LAUDZA'I", kelas: "11-E"},
+{nis: "13845", name: "NAJWA AZIZIAH SALIHI", kelas: "11-E"},
+{nis: "13621", name: "NAUFAL DZAKY DZUL HANNAN", kelas: "11-E"},
+{nis: "13697", name: "NAURA ERLYNA PUTRI", kelas: "11-E"},
+{nis: "13805", name: "NAYLA SAFIRA PUTRI", kelas: "11-E"},
+{nis: "13699", name: "PUTRI AUDREY KHOIRUNNISA", kelas: "11-E"},
+{nis: "13700", name: "QALESYA AIDA SURYOTOMO", kelas: "11-E"},
+{nis: "13703", name: "SABRINA AURA CINTA AZZAHRA", kelas: "11-E"},
+{nis: "13847", name: "SATRIA GARDHA MEMAYU", kelas: "11-E"},
+{nis: "13704", name: "SEPTIANA PUTRI RAHMADANNI", kelas: "11-E"},
+{nis: "13811", name: "SHAFIRA ARDIANA PUTRI", kelas: "11-E"},
+{nis: "13777", name: "SHEZA VANYA NAZILA ERTANTO", kelas: "11-E"},
+{nis: "13631", name: "SYIFA AZZAHRA", kelas: "11-E"},
+{nis: "13708", name: "ABRAR RACHMAT DIANSYAH", kelas: "11-F"},
+{nis: "13815", name: "ADELIA DWI YUNIKA", kelas: "11-F"},
+{nis: "13743", name: "AFIFAH DEWI NAYLA PUTRI", kelas: "11-F"},
+{nis: "13600", name: "AKBAR WICAKSONO MUBAKRI", kelas: "11-F"},
+{nis: "13819", name: "ALANTAMA AFIF ANTARA", kelas: "11-F"},
+{nis: "13821", name: "ALMEIRA AHZA NARESWARI", kelas: "11-F"},
+{nis: "13749", name: "ARLIOKTA WASIATUL CHOLIFAH", kelas: "11-F"},
+{nis: "13603", name: "ARTHA ZHEZA FEBRIARISTI", kelas: "11-F"},
+{nis: "13643", name: "BONIFASIUS NOEL ADVENTO", kelas: "11-F"},
+{nis: "13718", name: "DEVINA APVRIZA SUDARSONO", kelas: "11-F"},
+{nis: "13758", name: "EFTI ISNAWATI", kelas: "11-F"},
+{nis: "13646", name: "ELITA NUR", kelas: "11-F"},
+{nis: "13678", name: "ERVINA RIZQY RAHMAWATI", kelas: "11-F"},
+{nis: "13831", name: "FARRAS SYIHABUDDIN AL HANNAN", kelas: "11-F"},
+{nis: "13761", name: "GHULAM MA'RUF HIDAYAT", kelas: "11-F"},
+{nis: "13685", name: "GURUH IDAM GILANG PRADANA", kelas: "11-F"},
+{nis: "13835", name: "HAIDIR BINTANG AL FARREL", kelas: "11-F"},
+{nis: "13614", name: "JOHAN CIHANA", kelas: "11-F"},
+{nis: "13653", name: "KEYSHA RIZKY RAMADHANI", kelas: "11-F"},
+{nis: "13762", name: "KHANZA REIHA AQILA ZAHRA", kelas: "11-F"},
+{nis: "13841", name: "LUFTHANZA JUSANDO", kelas: "11-F"},
+{nis: "13731", name: "MARSHANISWA ABIDAH PRATOMO", kelas: "11-F"},
+{nis: "13802", name: "MUHAMAD RIYAN DWI ARIWIBOWO", kelas: "11-F"},
+{nis: "13618", name: "MUHAMMAD DZAKI RIFQIANSYAH", kelas: "11-F"},
+{nis: "13733", name: "MUHAMMAD ROFIQ", kelas: "11-F"},
+{nis: "13695", name: "NAHLA DIAN RENATASARI", kelas: "11-F"},
+{nis: "13696", name: "NAOMI NATANIA SETIAWAN", kelas: "11-F"},
+{nis: "13773", name: "RADIT NURLATIF ADITYA", kelas: "11-F"},
+{nis: "13663", name: "RAISSA ADINDA ELMIRA", kelas: "11-F"},
+{nis: "13737", name: "RIDHO BIAS RAMADHAN", kelas: "11-F"},
+{nis: "13627", name: "RIFKY DAMARA WIJAYA", kelas: "11-F"},
+{nis: "13738", name: "RIFQY SYARIF HUSAIN", kelas: "11-F"},
+{nis: "13628", name: "RULIFF WAHYU RAMADHAN", kelas: "11-F"},
+{nis: "13629", name: "SHABINA FITRIANA PUTRI EFENDI", kelas: "11-F"},
+{nis: "13667", name: "TAUFIK HALIM HENDRIANSYAH", kelas: "11-F"},
+{nis: "13670", name: "ZALFA YUDIANNAFISHA RAYYA", kelas: "11-F"},
+{nis: "13818", name: "AFINDA ASFA WIDYAWATI", kelas: "11-G"},
+{nis: "13820", name: "ALISA KUSUMA WARDANI", kelas: "11-G"},
+{nis: "13710", name: "ALTHAFIANA KHUMAYRA ZAHRA", kelas: "11-G"},
+{nis: "13637", name: "ANANTHA ATINDRIYA SOESANTO", kelas: "11-G"},
+{nis: "13601", name: "ANGELINE DHEANYTA SETIAWAN", kelas: "11-G"},
+{nis: "13748", name: "ANNISA DWI SETYANINGSIH", kelas: "11-G"},
+{nis: "13781", name: "ATHALLA ZARA WINAR SAPUTRI", kelas: "11-G"},
+{nis: "13674", name: "AULIA AZZAHROH NUR SALSABIILA", kelas: "11-G"},
+{nis: "13826", name: "AULIA DEVINTA SALSABILA", kelas: "11-G"},
+{nis: "13827", name: "BARCKAFII ZIMMERA KIRANA", kelas: "11-G"},
+{nis: "13642", name: "BISMA WISNU KAWIRYAN", kelas: "11-G"},
+{nis: "13830", name: "DINDA RAMADHANI PUSPITASARI", kelas: "11-G"},
+{nis: "13719", name: "DINI MUTIA MAULIDA", kelas: "11-G"},
+{nis: "13787", name: "DITA WAHYU RAMADHANI", kelas: "11-G"},
+{nis: "13647", name: "EMMANUELLA DELLA ROSA", kelas: "11-G"},
+{nis: "13648", name: "ERIN SABELA ARISTAWATI", kelas: "11-G"},
+{nis: "13610", name: "FATIMAH MAULIDA HIDAYAH", kelas: "11-G"},
+{nis: "13794", name: "FELIZA EKA PUTRI", kelas: "11-G"},
+{nis: "13649", name: "FERI AHMAD SETIAWAN", kelas: "11-G"},
+{nis: "13727", name: "GHANIA RIFQA SAQIBA", kelas: "11-G"},
+{nis: "13687", name: "INDIE AURELLIA AYA REVA", kelas: "11-G"},
+{nis: "13689", name: "JOHN SEBASTIAN SUPANGAT", kelas: "11-G"},
+{nis: "13837", name: "KEVIN ARBYANZA PUTRA", kelas: "11-G"},
+{nis: "13763", name: "KHIESA AYU MAYLANI", kelas: "11-G"},
+{nis: "13616", name: "KINARA ANINDYA ATHA", kelas: "11-G"},
+{nis: "13799", name: "LAILA RADHIKA BAGJA", kelas: "11-G"},
+{nis: "13692", name: "MAIDA NUR RAHMAWATI", kelas: "11-G"},
+{nis: "13803", name: "MUHAMMAD ANWAR ISMAIL", kelas: "11-G"},
+{nis: "13658", name: "MUTIK KURNIA SALAMAH", kelas: "11-G"},
+{nis: "13804", name: "NAILA SEKARSARI HARTANTO", kelas: "11-G"},
+{nis: "13772", name: "PUGUH PRABAWA SULISTYA KATAM", kelas: "11-G"},
+{nis: "13623", name: "RA'IFAH HARUMI", kelas: "11-G"},
+{nis: "13810", name: "RUFAIDA ALFIYANA PUTRI", kelas: "11-G"},
+{nis: "13778", name: "SHIDQI TAUFIQURRAHMAN", kelas: "11-G"},
+{nis: "13634", name: "TIMOTHEUS RAMA WIJAYA", kelas: "11-G"},
+{nis: "13668", name: "WINONA RASIYAH SPERANZA", kelas: "11-G"},
+{nis: "13561", name: "ADRIAN ILHAM WIKANTYASA PERDAMAIAN", kelas: "12-A"},
+{nis: "13455", name: "AHMAD RAFI' RIYAN IBRAHIM", kelas: "12-A"},
+{nis: "13381", name: "AISYAH HAYYU KARTIKA ZAMAN", kelas: "12-A"},
+{nis: "13345", name: "ALIFFA PUTRI IYOMI", kelas: "12-A"},
+{nis: "13458", name: "ANNISA RAIHANA QOULAN SADIDA", kelas: "12-A"},
+{nis: "13565", name: "ARSHAD PRADIPTA", kelas: "12-A"},
+{nis: "13348", name: "ARSYADATUL WATSNA AFITSA", kelas: "12-A"},
+{nis: "13385", name: "ASYIL SANIAH", kelas: "12-A"},
+{nis: "13566", name: "ATHIYA SILFIE NABILA", kelas: "12-A"},
+{nis: "13567", name: "ATIQA AMELIA RIZQI", kelas: "12-A"},
+{nis: "13422", name: "AYU NAIZA ANDRIAN", kelas: "12-A"},
+{nis: "13461", name: "DIVA AYU SILVIA", kelas: "12-A"},
+{nis: "13494", name: "ENGGAR FENDI SATRIO", kelas: "12-A"},
+{nis: "13463", name: "FATIKAH TIAR RINJANI", kelas: "12-A"},
+{nis: "13355", name: "FATIKHASARI HIDAYATI", kelas: "12-A"},
+{nis: "13397", name: "FREYA NIRWASITA TAMADYANIST", kelas: "12-A"},
+{nis: "13540", name: "GUSFITO RESTU PRATAMA", kelas: "12-A"},
+{nis: "13434", name: "HAFIDHAH ROFIAH NURJANNAH", kelas: "12-A"},
+{nis: "13359", name: "HANA SINDI ANISAH", kelas: "12-A"},
+{nis: "13577", name: "HASAN AUFAR", kelas: "12-A"},
+{nis: "13498", name: "HERLINA RAHMA", kelas: "12-A"},
+{nis: "13399", name: "INTAN WIDYA PANGESTIKA", kelas: "12-A"},
+{nis: "13578", name: "I'ZAZ NAIFAH", kelas: "12-A"},
+{nis: "13469", name: "KADHITA ZARRA AL KHANSA", kelas: "12-A"},
+{nis: "13471", name: "MUHAMMAD TEGAR WAHYU SAPUTRA", kelas: "12-A"},
+{nis: "13547", name: "NABILA FAZA TAZKIA", kelas: "12-A"},
+{nis: "13509", name: "NASHWA VICI KURNIAJI", kelas: "12-A"},
+{nis: "13510", name: "NASYWAA RADDIN ANTOSINA", kelas: "12-A"},
+{nis: "13443", name: "NUR FERIKA INDRIANI", kelas: "12-A"},
+{nis: "13512", name: "RAHMALIA PUTRI UTAMI", kelas: "12-A"},
+{nis: "13375", name: "RAMADHANI INTAN DAMARJATI", kelas: "12-A"},
+{nis: "13587", name: "RISKA WIDYAWATI", kelas: "12-A"},
+{nis: "13518", name: "THORIQ SALAMUDDIN", kelas: "12-A"},
+{nis: "13521", name: "YUNITA ANDINI PUTRI SAFIRA", kelas: "12-A"},
+{nis: "13451", name: "YUSYIFA NAFISAWATI", kelas: "12-A"},
+{nis: "13415", name: "ZAHRA RIZKA AYU FEBRINA", kelas: "12-A"},
+{nis: "13560", name: "ABIYAN BAYDAR NUGROHO", kelas: "12-B"},
+{nis: "13452", name: "ADHAINI NUR MARASARI", kelas: "12-B"},
+{nis: "13564", name: "ALYSHA RIZQI RAMADHANI", kelas: "12-B"},
+{nis: "13383", name: "AMALIYA MA'RUFAH", kelas: "12-B"},
+{nis: "13421", name: "AULIYA ROSA RAHMAWATI", kelas: "12-B"},
+{nis: "13459", name: "AYUDYA CAHYA BINTANG SAPUTRI", kelas: "12-B"},
+{nis: "13388", name: "AZMI NABIL FATHINAH", kelas: "12-B"},
+{nis: "13389", name: "BERNADETHA RATNA WULANDARI PRIHADI", kelas: "12-B"},
+{nis: "13572", name: "DAFA ARYANTA PUTRA PRASETYA", kelas: "12-B"},
+{nis: "13531", name: "DANISH AMMARA SHIFA ALYANO", kelas: "12-B"},
+{nis: "13532", name: "DANISH MUKTAZZAH 'ATIIQAH", kelas: "12-B"},
+{nis: "13491", name: "DWI ARIB FADHLUR ROHMAN", kelas: "12-B"},
+{nis: "13492", name: "EARLY DWI KUSUMAWATI", kelas: "12-B"},
+{nis: "13493", name: "EKA PRIHATIN ROJA NAILUNNAJAH", kelas: "12-B"},
+{nis: "13431", name: "FAIZ ARSYAD FAHREZI PANJALU", kelas: "12-B"},
+{nis: "13497", name: "FITRI WIDAYANTI", kelas: "12-B"},
+{nis: "13464", name: "GADIS PRATISTA", kelas: "12-B"},
+{nis: "13357", name: "GENDHIS ANINDITA WIBOWO", kelas: "12-B"},
+{nis: "13398", name: "HANIF LUTFI NABILA", kelas: "12-B"},
+{nis: "13499", name: "HERMAWAN ADITYA KUSJATMIKA", kelas: "12-B"},
+{nis: "13500", name: "IRA MASRUROH", kelas: "12-B"},
+{nis: "13579", name: "KEYSHA ALVINA AZZAHRA", kelas: "12-B"},
+{nis: "13502", name: "KEYZA ALIFIA", kelas: "12-B"},
+{nis: "13437", name: "LATHIFAH ATUTININGTIYAS", kelas: "12-B"},
+{nis: "13438", name: "LIVIA TRI LESTARI", kelas: "12-B"},
+{nis: "13506", name: "MUHAMMAD RASYID ALFARIZI", kelas: "12-B"},
+{nis: "13440", name: "MUHAMMAD ULIN NUHA", kelas: "12-B"},
+{nis: "13473", name: "NABILA ALYA MUKHBITA", kelas: "12-B"},
+{nis: "13368", name: "NAJMA RAISSA SALEHA", kelas: "12-B"},
+{nis: "13369", name: "NATHAN KENZIE RADITHYA", kelas: "12-B"},
+{nis: "13370", name: "NAWFAL RUWAYFI HARTANTO", kelas: "12-B"},
+{nis: "13477", name: "NUFAISAH PUTRI MEIHASNI", kelas: "12-B"},
+{nis: "13372", name: "PUTRI SALMA WAVIAH", kelas: "12-B"},
+{nis: "13588", name: "SABILA LUNA SUGIARTO", kelas: "12-B"},
+{nis: "13590", name: "SALARAS ATIFAH", kelas: "12-B"},
+{nis: "13515", name: "SATRIA ABIYANSYAH", kelas: "12-B"},
+{nis: "13454", name: "ADRIAN SUBEKTI", kelas: "12-C"},
+{nis: "13457", name: "ALZENA ZAHWA HUSAEN", kelas: "12-C"},
+{nis: "13525", name: "APRILIA SULISTYAWATI", kelas: "12-C"},
+{nis: "13528", name: "ARKA FABIAN DARMA PUTRA", kelas: "12-C"},
+{nis: "13527", name: "ARUM LESTARI", kelas: "12-C"},
+{nis: "13418", name: "ASMAN RAMADHANI HAKIM", kelas: "12-C"},
+{nis: "13568", name: "AZZAH HAUNAN SABRINA", kelas: "12-C"},
+{nis: "13423", name: "AZZAHRA HAYYU KHALISTA", kelas: "12-C"},
+{nis: "13424", name: "BENING CAHYA RYENA", kelas: "12-C"},
+{nis: "13488", name: "BINTANG NAYOTTAMA", kelas: "12-C"},
+{nis: "13350", name: "BINTANG PRAKASA ARIYANTO", kelas: "12-C"},
+{nis: "13426", name: "CHOLID IRSYAD", kelas: "12-C"},
+{nis: "13571", name: "CINDY RINDIYANI", kelas: "12-C"},
+{nis: "13427", name: "DAMAR PANJALU", kelas: "12-C"},
+{nis: "13533", name: "DEA ASHILA RAHMA DIYANA", kelas: "12-C"},
+{nis: "13490", name: "DEAN AZRIEL PANJAITAN", kelas: "12-C"},
+{nis: "13429", name: "DEVIANA FATONAH", kelas: "12-C"},
+{nis: "13460", name: "DIMAS ARIF PRIHANTORO", kelas: "12-C"},
+{nis: "13354", name: "EMILIA GALUH CEMPAKA", kelas: "12-C"},
+{nis: "13462", name: "FADILA DAMAI VESPERE", kelas: "12-C"},
+{nis: "13495", name: "FAUZAN ROMADHON", kelas: "12-C"},
+{nis: "13356", name: "FIRSTONER AFFAN DAFFA", kelas: "12-C"},
+{nis: "13542", name: "KANNYA ELLYTA PUTRI ANGGRAINI", kelas: "12-C"},
+{nis: "13436", name: "KEISHA NUR AZIZAH", kelas: "12-C"},
+{nis: "13403", name: "KHOIRUNISA UMAYA", kelas: "12-C"},
+{nis: "13362", name: "LUCKY ACHMAD PRASETYA", kelas: "12-C"},
+{nis: "13546", name: "MUHAMMAD FARIS HUSAEN", kelas: "12-C"},
+{nis: "13479", name: "PUTRI RAHMA SARI", kelas: "12-C"},
+{nis: "13553", name: "RASYA KHATAMI MOEDJIONO", kelas: "12-C"},
+{nis: "13554", name: "RINGGA JATI WICAKSONO", kelas: "12-C"},
+{nis: "13410", name: "RISSA KHORININGTYAS", kelas: "12-C"},
+{nis: "13482", name: "SAFA NAZHIFATUZ ZULFA", kelas: "12-C"},
+{nis: "13483", name: "SALMA INTAN NUR'AINI", kelas: "12-C"},
+{nis: "13555", name: "SEKAR DAMAYANTI", kelas: "12-C"},
+{nis: "13592", name: "SHAFA MUTHIA YUMNA", kelas: "12-C"},
+{nis: "13559", name: "ZHARIFAH NUR MAHMUDAH", kelas: "12-C"},
+{nis: "13344", name: "ADIANSYAH ARIF HIDAYATULLAH", kelas: "12-D"},
+{nis: "13380", name: "ADINA ZAHRA SHAFIA", kelas: "12-D"},
+{nis: "13417", name: "ADYA FENTHI GENTA RAMADHANI", kelas: "12-D"},
+{nis: "13387", name: "AURIEL DIANDRA NABILA", kelas: "12-D"},
+{nis: "13390", name: "DANENDRA AUFA RAFIF", kelas: "12-D"},
+{nis: "13391", name: "DEIDAN ARYOSETO SUBAGYO", kelas: "12-D"},
+{nis: "13534", name: "DEWI MEISA WULANDARI", kelas: "12-D"},
+{nis: "13430", name: "ERLANGGA PUTRA BUDI SETIAWAN", kelas: "12-D"},
+{nis: "13575", name: "EZAR WIFA FAIRUZZAKI", kelas: "12-D"},
+{nis: "13393", name: "FADHIL AHMAD SYABANA", kelas: "12-D"},
+{nis: "13538", name: "FATHANDIKA NUR IHSAN", kelas: "12-D"},
+{nis: "13496", name: "FIRA YOSINTA ADI", kelas: "12-D"},
+{nis: "13433", name: "GANIS ALYA CAHYANINGTYAS", kelas: "12-D"},
+{nis: "13576", name: "HANNAN NAUFAL NASRUL HAQ", kelas: "12-D"},
+{nis: "13400", name: "IRENE BUDI KURNIAWATI", kelas: "12-D"},
+{nis: "13468", name: "ISNA KHOIRUN NISA", kelas: "12-D"},
+{nis: "13360", name: "JESA ALIYA DEVITRI", kelas: "12-D"},
+{nis: "13361", name: "KEVIN RAYSHA PERMANA", kelas: "12-D"},
+{nis: "13580", name: "KIRANI FATINA ZAHRASTUTI", kelas: "12-D"},
+{nis: "13439", name: "MADA MALIKA ANANDA", kelas: "12-D"},
+{nis: "13505", name: "MAULIDA UMMY HANI' ROSYADA", kelas: "12-D"},
+{nis: "13545", name: "MAYA NATARINA NURMALA", kelas: "12-D"},
+{nis: "13472", name: "MUTIARA ANASTASIA SETIAWATI", kelas: "12-D"},
+{nis: "13474", name: "NAJWA SALSABILA NOVISAPUTRI", kelas: "12-D"},
+{nis: "13549", name: "NAZALIA ZAUHAIR NIANDITA", kelas: "12-D"},
+{nis: "13441", name: "NINDITA AGNIA KHAIRUNNISA", kelas: "12-D"},
+{nis: "13550", name: "NISRINA NUR HADIYANTO", kelas: "12-D"},
+{nis: "13511", name: "RAHADYAN PUNJUNG JATMIKO", kelas: "12-D"},
+{nis: "13513", name: "RAKHA FAIRUZ SYAFA", kelas: "12-D"},
+{nis: "13447", name: "RAMYA WINDRIYA SASANTI", kelas: "12-D"},
+{nis: "13411", name: "RYAN ANDIKA JANUAR", kelas: "12-D"},
+{nis: "13485", name: "SASKIA AULIA SAFITRI", kelas: "12-D"},
+{nis: "13486", name: "SHIFA ULINUHA DZAKIYYA", kelas: "12-D"},
+{nis: "13449", name: "SYAHRU RADITYA NURFAHMI", kelas: "12-D"},
+{nis: "13595", name: "VIENETTA RAFEYFA ASYLA EKA PUTRI", kelas: "12-D"},
+{nis: "13557", name: "YOGI FERRY PRATAMA", kelas: "12-D"},
+{nis: "13416", name: "ADHYAKSA IQBAL AZZAHIR YOKA", kelas: "12-E"},
+{nis: "13382", name: "ALIKA FLORIAN RAMADHIANI", kelas: "12-E"},
+{nis: "13526", name: "AQILA ZAHRA AMIRA SUTANTO", kelas: "12-E"},
+{nis: "13347", name: "ARCELIA CALISTA", kelas: "12-E"},
+{nis: "13349", name: "AUDIA MECCA HENDYANA", kelas: "12-E"},
+{nis: "13420", name: "AUFA HAFIY NURAIRA AZKA", kelas: "12-E"},
+{nis: "13386", name: "AULIYA INTI RAHMA PUTRI", kelas: "12-E"},
+{nis: "13529", name: "AURELIA CAESSA KALILA PUTRI", kelas: "12-E"},
+{nis: "13425", name: "CHESYA ATHA NAFISA", kelas: "12-E"},
+{nis: "13573", name: "DAFA HERMAWAN NUR MAJID", kelas: "12-E"},
+{nis: "13428", name: "DESIRA BILQIS NAKISHA", kelas: "12-E"},
+{nis: "13394", name: "FAHMI EKA YULIYANTI", kelas: "12-E"},
+{nis: "13395", name: "FAJRIANZA AZIZ WIBAWA", kelas: "12-E"},
+{nis: "13396", name: "FARIZQIA GHATHFANI", kelas: "12-E"},
+{nis: "13467", name: "IHDA AL-HUSNAYAINI", kelas: "12-E"},
+{nis: "13401", name: "IRZAQI DWI MAULANA", kelas: "12-E"},
+{nis: "13501", name: "KAFA FI SABILILLAH", kelas: "12-E"},
+{nis: "13402", name: "KHALIFI MAULIDIA", kelas: "12-E"},
+{nis: "13544", name: "KHOIRIN NISSA IDA KHASANAH", kelas: "12-E"},
+{nis: "13406", name: "M. IRSYAD FAQIH", kelas: "12-E"},
+{nis: "13407", name: "MARIA KARTIKA DIAN UTAMI", kelas: "12-E"},
+{nis: "13364", name: "MIKHAILA VEDA SARASWATI", kelas: "12-E"},
+{nis: "13367", name: "MUHAMMAD RAFFI ARZANY", kelas: "12-E"},
+{nis: "13584", name: "NABILA SALSABILA", kelas: "12-E"},
+{nis: "13508", name: "NADIA ANDRIYANI", kelas: "12-E"},
+{nis: "13475", name: "NAMIRA TSABITA NISRINA", kelas: "12-E"},
+{nis: "13408", name: "NISRINA MAIZA GUSNAINI", kelas: "12-E"},
+{nis: "13446", name: "RAFAEL HAIDAR RONALDO", kelas: "12-E"},
+{nis: "13409", name: "RIDHO GATA WIJAYA", kelas: "12-E"},
+{nis: "13377", name: "ROMIZ KHALDUN WIDYANTO", kelas: "12-E"},
+{nis: "13412", name: "SAFIRA MUMTAZ APSARINI", kelas: "12-E"},
+{nis: "13414", name: "SHAVIN ADINDRANI PUTRI", kelas: "12-E"},
+{nis: "13487", name: "SYAFIRA", kelas: "12-E"},
+{nis: "13450", name: "SYARIFUDDIN MUHAMMAD EL GHIFARY", kelas: "12-E"},
+{nis: "13378", name: "TERESA AVILA KRISTIANA WIDIASTUTI", kelas: "12-E"},
+{nis: "13520", name: "VARYSKA ADYATMA WARASTRI", kelas: "12-E"},
+{nis: "13456", name: "ALEXANDER SONY KURNIAWAN", kelas: "12-F"},
+{nis: "13563", name: "ALIFA ANINDITA RAHMADANI", kelas: "12-F"},
+{nis: "13384", name: "ANANDITO WAHYU WICAKSONO", kelas: "12-F"},
+{nis: "13530", name: "AZWA RIFNAND EFENDI", kelas: "12-F"},
+{nis: "13353", name: "DWI FEBRIYANI", kelas: "12-F"},
+{nis: "13535", name: "DZAFIF NAUFAL ISNUARTA", kelas: "12-F"},
+{nis: "13536", name: "EMMANUELLA CHRISTANIA PUTRI", kelas: "12-F"},
+{nis: "13537", name: "FADJRINA SALSABILA KHALISHAH PUTRI", kelas: "12-F"},
+{nis: "13432", name: "FIRJAL FARAHNISA BELGIN", kelas: "12-F"},
+{nis: "13465", name: "GRACELLA LOLITA PRASETYA PUTRI", kelas: "12-F"},
+{nis: "13358", name: "GWEN ELENA MAKAYLA", kelas: "12-F"},
+{nis: "13466", name: "HALIMAH LU'LU'UNNURANI", kelas: "12-F"},
+{nis: "13541", name: "HIMAWAN ARIA YUDA", kelas: "12-F"},
+{nis: "13435", name: "IRMAWATI DWI VALENTIN", kelas: "12-F"},
+{nis: "13543", name: "KEYLA DWI OCTAVIA", kelas: "12-F"},
+{nis: "13470", name: "KINANTI NURINTYAS", kelas: "12-F"},
+{nis: "13581", name: "LUTFI FARHANA", kelas: "12-F"},
+{nis: "13582", name: "MUTIA KIREINA RAHARJO", kelas: "12-F"},
+{nis: "13583", name: "NABILA AULIA RAHMA", kelas: "12-F"},
+{nis: "13507", name: "NABILA QURATA AULIA PUTRI RAISYA", kelas: "12-F"},
+{nis: "13548", name: "NAYUNDA RASTYSIA YUSAPUTRI", kelas: "12-F"},
+{nis: "13551", name: "NOVARA AKHMALIA NAFIATUN", kelas: "12-F"},
+{nis: "13371", name: "NUR LAILA SYAHIDAH", kelas: "12-F"},
+{nis: "13445", name: "OLIVIA FEBRIANI", kelas: "12-F"},
+{nis: "13478", name: "PHILIP RUSDIYONO", kelas: "12-F"},
+{nis: "13480", name: "RADIT RAFI'I", kelas: "12-F"},
+{nis: "13373", name: "RAFAEL KRISTANTO", kelas: "12-F"},
+{nis: "13374", name: "RAHMA SYAKIRAH", kelas: "12-F"},
+{nis: "13448", name: "RISKA LILI PUTRI UTAMI", kelas: "12-F"},
+{nis: "13589", name: "SABRINA ANGGANI RARAS", kelas: "12-F"},
+{nis: "13514", name: "SALWA AL HAYA", kelas: "12-F"},
+{nis: "13556", name: "SEVERINA LAKSITA WIDYA NASTITI", kelas: "12-F"},
+{nis: "13593", name: "SHOFI AMALIA", kelas: "12-F"},
+{nis: "13517", name: "SYAHIDA SALAMAH", kelas: "12-F"},
+{nis: "13523", name: "ZAHWA DEVI RAIHANAH", kelas: "12-F"},
+{nis: "13558", name: "ZETHA AURELIA", kelas: "12-F"},
+{nis: "13453", name: "ADITYA RAGIL YULIANTO", kelas: "12-G"},
+{nis: "13524", name: "AFIFAH NUR SYAHRANI", kelas: "12-G"},
+{nis: "13562", name: "ALFI MAHSUNAH", kelas: "12-G"},
+{nis: "13346", name: "ANGGITA FITRIANA RAHMAWATI", kelas: "12-G"},
+{nis: "13597", name: "ARINI TRI SALSABILA LESTARI", kelas: "12-G"},
+{nis: "13419", name: "ATTALLAH NURRISTA NUGRAHA", kelas: "12-G"},
+{nis: "13569", name: "BISMA NAUFA AMRU", kelas: "12-G"},
+{nis: "13570", name: "CHARENT BILQIES ANDINI HAPSARI", kelas: "12-G"},
+{nis: "13489", name: "DANIAL NOURI MUSYAFFA", kelas: "12-G"},
+{nis: "13351", name: "DESTA AULIA RAHMAWATI", kelas: "12-G"},
+{nis: "13352", name: "DESTIANA AISYAH AZZAHRA", kelas: "12-G"},
+{nis: "13392", name: "DYAN APRILLIANINGSIH", kelas: "12-G"},
+{nis: "13574", name: "ENDA TRI ARWAN MAULANA", kelas: "12-G"},
+{nis: "13539", name: "GLEDIS TUSELIA", kelas: "12-G"},
+{nis: "13404", name: "LEANDRA KURNIAWAN", kelas: "12-G"},
+{nis: "13503", name: "LARETA SABRINA NATHANIA", kelas: "12-G"},
+{nis: "13405", name: "LINTANG CAHYANINGRUM", kelas: "12-G"},
+{nis: "13363", name: "LULU AFIFAH", kelas: "12-G"},
+{nis: "13504", name: "MALIKA CINTA MAHARWIYATI", kelas: "12-G"},
+{nis: "13365", name: "MUHAMMAD ABDUL AZIZ", kelas: "12-G"},
+{nis: "13366", name: "MUHAMMAD IQBAL HARYO PURNOMO", kelas: "12-G"},
+{nis: "13476", name: "NASYWA YANU VARISHA", kelas: "12-G"},
+{nis: "13442", name: "NOVA PUTRI WULANDARI", kelas: "12-G"},
+{nis: "13444", name: "OKTA FITRIANA", kelas: "12-G"},
+{nis: "13552", name: "RAHMAH AULYA RAMADHANI", kelas: "12-G"},
+{nis: "13585", name: "RAHYANISA PRAMESTHI RAHARJO", kelas: "12-G"},
+{nis: "13376", name: "RAYA RAHMA ANINDYA RENANINGTYAS", kelas: "12-G"},
+{nis: "13481", name: "RIDHO PUTRA KUNJANA", kelas: "12-G"},
+{nis: "13586", name: "RISA AYU RAHMAWATI", kelas: "12-G"},
+{nis: "13591", name: "SALSA HARNIANTY", kelas: "12-G"},
+{nis: "13413", name: "SALWA EMILI ANNABILA", kelas: "12-G"},
+{nis: "13484", name: "SARRAH FIKRI KHAIRANI", kelas: "12-G"},
+{nis: "13516", name: "SHELVI ARIFINA RAMADHANI", kelas: "12-G"},
+{nis: "13594", name: "UMI SALAMAH FARDZAN", kelas: "12-G"},
+{nis: "13379", name: "VANIA CITRA ELYSIA", kelas: "12-G"},
+{nis: "13522", name: "ZAHRA CHOIRUNNISA", kelas: "12-G"},
+
+
+            // Tambahkan sisa data siswa di sini...
+        ];
+
+        const CONFIG = {
+            startTime: "06:00", // Waktu mulai bisa absen
+            lateTime: "14:00",  // Batas terlambat
+            endTime: "15:00",   // Waktu tutup absen
+            // Masukkan URL Google Apps Script Anda di sini
+            googleSheetUrl: "https://script.google.com/macros/s/AKfycby_23goqqKCB8f_jT3-MZnGjW9SwP8czDu2WqPvr_iKlu9GW6Z1xmHigEsdp9o_vCad/exec" 
+        };
+
+        // ==========================================
+        // 2. KOMPONEN UTAMA (APP)
+        // ==========================================
+        function App() {
+            const [logs, setLogs] = useState([]);
+            const [activeTab, setActiveTab] = useState('kiosk');
+
+            // Load data dari Local Storage saat pertama kali jalan
+            useEffect(() => {
+                const savedLogs = localStorage.getItem('presensi_logs_sman1');
+                if (savedLogs) setLogs(JSON.parse(savedLogs));
+            }, []);
+
+            // Simpan otomatis ke Local Storage setiap ada perubahan log
+            useEffect(() => {
+                localStorage.setItem('presensi_logs_sman1', JSON.stringify(logs));
+            }, [logs]);
+
+            return (
+                <div className="flex flex-col min-h-screen">
+                    {/* --- HEADER --- */}
+                    <header className="bg-blue-700 text-white shadow-md z-10 relative">
+                        <div className="max-w-5xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div className="flex items-center gap-3">
+                                {/* LOGO KECIL: Di Header */}
+                                <img 
+                                    src="LogoSMA.png" 
+                                    alt="Logo Sekolah" 
+                                    className="w-10 h-10 object-contain bg-white rounded-full p-0.5 shadow-sm"
+                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                />
+                                <h1 className="text-xl font-black tracking-wide">Presensi SMAN 1 Sleman</h1>
+                            </div>
+
+                            <nav className="flex bg-blue-800/50 p-1 rounded-lg">
+                                <button 
+                                    onClick={() => setActiveTab('kiosk')}
+                                    className={`px-5 py-2 rounded-md text-sm font-bold transition-all ${activeTab === 'kiosk' ? 'bg-white text-blue-700 shadow-sm' : 'text-blue-100 hover:text-white hover:bg-blue-600'}`}
+                                >
+                                    <i className="fa-solid fa-desktop mr-2"></i>Kiosk
+                                </button>
+                                <button 
+                                    onClick={() => setActiveTab('admin')}
+                                    className={`px-5 py-2 rounded-md text-sm font-bold transition-all ${activeTab === 'admin' ? 'bg-white text-blue-700 shadow-sm' : 'text-blue-100 hover:text-white hover:bg-blue-600'}`}
+                                >
+                                    <i className="fa-solid fa-user-shield mr-2"></i>Admin
+                                </button>
+                            </nav>
+                        </div>
+                    </header>
+
+                    {/* --- MAIN CONTENT --- */}
+                    <main className="flex-grow p-4 md:p-8 flex justify-center items-start pt-8">
+                        <div className="w-full max-w-5xl">
+                            {activeTab === 'kiosk' ? (
+                                <KioskPortal logs={logs} setLogs={setLogs} />
+                            ) : (
+                                <AdminDashboard logs={logs} setLogs={setLogs} />
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        // ==========================================
+        // 3. TAB KIOSK (SISWA)
+        // ==========================================
+        function KioskPortal({ logs, setLogs }) {
+            const [inputMode, setInputMode] = useState('scanner'); // 'scanner' atau 'camera'
+            const [scanStatus, setScanStatus] = useState('waiting'); // 'waiting', 'success', 'error'
+            const [scanData, setScanData] = useState(null);
+            const [errorMsg, setErrorMsg] = useState('');
+            const [nisInput, setNisInput] = useState('');
+            const [currentTime, setCurrentTime] = useState(new Date());
+            
+            const inputRef = useRef(null);
+            const scannerRef = useRef(null);
+
+            // Update Jam Real-time
+            useEffect(() => {
+                const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+                return () => clearInterval(timer);
+            }, []);
+
+            // Helper format tanggal
+            const getTodayDateString = () => {
+                const d = new Date();
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            };
+
+            const hasAttendedToday = (nis) => {
+                const today = getTodayDateString();
+                return logs.some(log => log.nis === nis && log.date === today && (log.status === 'Hadir' || log.status === 'Terlambat'));
+            };
+
+            // LOGIKA UTAMA PRESENSI
+            const processNis = (scannedNis) => {
+                const cleanNis = scannedNis.trim();
+                const student = STUDENTS.find(s => s.nis === cleanNis);
+
+                if (!student) {
+                    triggerError(`Siswa dengan NIS ${cleanNis} tidak terdaftar!`);
+                    return;
+                }
+
+                if (hasAttendedToday(student.nis)) {
+                    triggerError(`Presensi Ditolak: ${student.name} sudah tercatat hari ini.`);
+                    return;
+                }
+
+                // Cek Jam Kehadiran
+                const now = new Date();
+                const currentHrs = now.getHours() * 60 + now.getMinutes();
+                const [startH, startM] = CONFIG.startTime.split(':').map(Number);
+                const [lateH, lateM] = CONFIG.lateTime.split(':').map(Number);
+                const [endH, endM] = CONFIG.endTime.split(':').map(Number);
+
+                const startMins = startH * 60 + startM;
+                const lateMins = lateH * 60 + lateM;
+                const endMins = endH * 60 + endM;
+
+                if (currentHrs < startMins || currentHrs > endMins) {
+                    triggerError(`Mesin ditutup. Beroperasi jam ${CONFIG.startTime} - ${CONFIG.endTime} WIB.`);
+                    return;
+                }
+
+                // Tentukan Status Hadir/Terlambat
+                const statusHadir = currentHrs >= lateMins ? "Terlambat" : "Hadir";
+                
+                const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const dateStr = getTodayDateString();
+
+                const newLog = {
+                    id: Date.now(),
+                    nis: student.nis,
+                    name: student.name,
+                    kelas: student.kelas,
+                    date: dateStr,
+                    time: timeStr,
+                    timestamp: now.toISOString(),
+                    location: "Kiosk Utama",
+                    status: statusHadir
+                };
+
+                // Simpan ke State (dan LocalStorage)
+                setLogs(prev => [newLog, ...prev]);
+
+                // Kirim ke Google Sheets
+                if (CONFIG.googleSheetUrl && CONFIG.googleSheetUrl.includes("script.google.com")) {
+                    fetch(CONFIG.googleSheetUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newLog)
+                    }).catch(err => console.error("Gagal ke server", err));
+                }
+
+                // Tampilkan Sukses
+                setScanData({ student, time: timeStr, status: statusHadir });
+                setScanStatus('success');
+            };
+
+            const triggerError = (msg) => {
+                setErrorMsg(msg);
+                setScanStatus('error');
+            };
+
+            // Auto Reset Layar Pop-up
+            useEffect(() => {
+                if (scanStatus === 'success' || scanStatus === 'error') {
+                    const timer = setTimeout(() => {
+                        setScanStatus('waiting');
+                        setScanData(null);
+                        setErrorMsg('');
+                        setNisInput('');
+                    }, 4000); // Tampil 4 detik
+                    return () => clearTimeout(timer);
+                }
+            }, [scanStatus]);
+
+            // Fokus otomatis untuk Scanner USB (Mode Tersembunyi)
+            useEffect(() => {
+                if (inputMode === 'scanner' && scanStatus === 'waiting' && inputRef.current) {
+                    inputRef.current.focus();
+                }
+            }, [inputMode, scanStatus]);
+
+            // Setup Webcam Scanner
+            useEffect(() => {
+                let html5QrcodeScanner = null;
+
+                if (inputMode === 'camera' && scanStatus === 'waiting') {
+                    const startScanner = () => {
+                        if (window.Html5QrcodeScanner && document.getElementById("reader")) {
+                            html5QrcodeScanner = new window.Html5QrcodeScanner(
+                                "reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false
+                            );
+                            html5QrcodeScanner.render(
+                                (decodedText) => {
+                                    if (html5QrcodeScanner) html5QrcodeScanner.clear();
+                                    processNis(decodedText);
+                                },
+                                (err) => { /* abaikan error scanning frame */ }
+                            );
+                        }
+                    };
+                    
+                    // Beri jeda agar DOM render
+                    setTimeout(() => {
+                        if (window.Html5QrcodeScanner) startScanner();
+                    }, 300);
+                }
+
+                return () => {
+                    if (html5QrcodeScanner) {
+                        html5QrcodeScanner.clear().catch(e => console.log(e));
+                    }
+                };
+            }, [inputMode, scanStatus]);
+
+            return (
+                <div className="max-w-lg mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 relative">
+                    
+                    {/* LAYAR: STANDBY / MENUNGGU */}
+                    {scanStatus === 'waiting' && (
+                        <div className="p-8">
+                            <div className="text-center mb-6">
+                                {/* LOGO BESAR: Di Tengah Layar Standby di atas Jam */}
+                                <img 
+                                    src="LogoSMA.png" 
+                                    alt="Logo Sekolah" 
+                                    className="w-32 h-32 object-contain drop-shadow-xl mx-auto mb-4"
+                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                />
+                                
+                                <h2 className="text-2xl font-black text-gray-800 tracking-tight">MESIN PRESENSI</h2>
+                                
+                                {/* JAM DIGITAL */}
+                                <div className="text-5xl font-mono font-black text-blue-600 mt-2 drop-shadow-sm tracking-widest">
+                                    {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                </div>
+                            </div>
+
+                            {/* Pilihan Mode */}
+                            <div className="flex bg-gray-100 p-1 rounded-xl mb-6 shadow-inner">
+                                <button 
+                                    onClick={() => setInputMode('scanner')} 
+                                    className={`flex-1 flex justify-center items-center gap-2 py-3 text-sm font-bold rounded-lg transition-all ${inputMode === 'scanner' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                >
+                                    <i className="fa-solid fa-barcode text-lg"></i> Scanner Alat
+                                </button>
+                                <button 
+                                    onClick={() => setInputMode('camera')} 
+                                    className={`flex-1 flex justify-center items-center gap-2 py-3 text-sm font-bold rounded-lg transition-all ${inputMode === 'camera' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                >
+                                    <i className="fa-solid fa-camera text-lg"></i> Webcam
+                                </button>
+                            </div>
+
+                            {/* AREA PEMINDAIAN */}
+                            {inputMode === 'scanner' ? (
+                                <div 
+                                    className="bg-blue-50/70 border-2 border-blue-300 border-dashed rounded-2xl p-10 text-center cursor-pointer transition hover:bg-blue-100 group relative"
+                                    onClick={() => inputRef.current && inputRef.current.focus()}
+                                >
+                                    <i className="fa-solid fa-address-card text-blue-400 text-6xl mx-auto mb-4 block group-hover:scale-110 transition-transform duration-300"></i>
+                                    <h3 className="text-xl font-bold text-blue-800 mb-1">Tempelkan Kartu Pelajar</h3>
+                                    <p className="text-sm text-blue-600 font-medium flex items-center justify-center gap-2">
+                                        <span className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-ping"></span>
+                                        Menunggu pindaian...
+                                    </p>
+
+                                    {/* INPUT TERSEMBUNYI UNTUK KEAMANAN (TIDAK BISA DIKETIK MANUAL OLEH SISWA) */}
+                                    <input 
+                                        ref={inputRef} 
+                                        type="text" 
+                                        value={nisInput}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/\D/g, ''); // Hanya angka
+                                            setNisInput(val);
+                                            if (val.length >= 5) {
+                                                processNis(val.substring(0,5));
+                                                setNisInput('');
+                                            }
+                                        }}
+                                        className="opacity-0 absolute w-0 h-0 top-0 left-0" 
+                                        autoFocus 
+                                        autoComplete="off"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="overflow-hidden rounded-2xl border-4 border-gray-200 bg-black relative">
+                                    <div id="reader" className="w-full min-h-[300px] bg-white text-black"></div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* LAYAR POP-UP: BERHASIL (Hadir/Terlambat) */}
+                    {scanStatus === 'success' && scanData && (
+                        <div className="p-10 text-center animate-zoom-in bg-white h-full flex flex-col justify-center items-center">
+                            <div className={`p-5 rounded-full mb-6 shadow-xl ${scanData.status === 'Terlambat' ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-500'}`}>
+                                <i className={`fa-solid text-7xl ${scanData.status === 'Terlambat' ? 'fa-clock' : 'fa-circle-check'}`}></i>
+                            </div>
+                            
+                            <h2 className="text-3xl font-black text-gray-800 mb-2 leading-tight">{scanData.student.name}</h2>
+                            <div className="inline-block px-5 py-1.5 rounded-full font-bold text-gray-700 bg-gray-100 mb-6 text-lg">
+                                Kelas {scanData.student.kelas}
+                            </div>
+
+                            <div className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-5 shadow-inner">
+                                <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-3">
+                                    <span className="text-gray-500 font-semibold">Waktu Rekam</span>
+                                    <span className="font-mono font-bold text-xl text-gray-800">{scanData.time}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-500 font-semibold">Status</span>
+                                    <span className={`font-black uppercase tracking-widest text-lg ${scanData.status === 'Terlambat' ? 'text-orange-600' : 'text-green-600'}`}>
+                                        {scanData.status}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <p className="mt-8 text-gray-400 font-medium animate-pulse text-sm">Menyiapkan pemindaian berikutnya...</p>
+                        </div>
+                    )}
+
+                    {/* LAYAR POP-UP: DITOLAK/ERROR */}
+                    {scanStatus === 'error' && (
+                        <div className="p-10 text-center animate-zoom-in bg-white h-full flex flex-col justify-center items-center">
+                            <div className="p-5 rounded-full mb-6 bg-red-100 text-red-500 shadow-xl">
+                                <i className="fa-solid fa-triangle-exclamation text-7xl"></i>
+                            </div>
+                            
+                            <h2 className="text-4xl font-black text-red-600 mb-4 tracking-tight">DITOLAK</h2>
+                            
+                            <div className="bg-red-50 border border-red-200 text-red-700 p-5 rounded-2xl w-full text-lg font-bold leading-relaxed shadow-inner">
+                                {errorMsg}
+                            </div>
+                            
+                            <p className="mt-8 text-gray-400 font-medium animate-pulse text-sm">Kembali ke layar utama...</p>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // ==========================================
+        // 4. TAB ADMIN DASHBOARD
+        // ==========================================
+        function AdminDashboard({ logs, setLogs }) {
+            const [adminTab, setAdminTab] = useState('input'); // 'input', 'daily', 'monthly'
+            
+            // State Input Manual
+            const [manualNis, setManualNis] = useState('');
+            const [manualName, setManualName] = useState('');
+            const [manualKelas, setManualKelas] = useState('');
+            const [manualStatus, setManualStatus] = useState('Sakit');
+            const [manualDate, setManualDate] = useState(new Date().toISOString().split('T')[0]);
+            const [alertMsg, setAlertMsg] = useState({ type: '', text: '' });
+
+            // State Recap
+            const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+            const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+
+            // Efek auto-fill nama saat NIS diketik Admin
+            useEffect(() => {
+                if (manualNis.length >= 5) {
+                    const student = STUDENTS.find(s => s.nis === manualNis.substring(0,5));
+                    if (student) {
+                        setManualName(student.name);
+                        setManualKelas(student.kelas);
+                    } else {
+                        setManualName('Siswa tidak ditemukan');
+                        setManualKelas('-');
+                    }
+                } else {
+                    setManualName('');
+                    setManualKelas('');
+                }
+            }, [manualNis]);
+
+            const handleManualSubmit = (e) => {
+                e.preventDefault();
+                if (manualName === 'Siswa tidak ditemukan' || manualName === '') {
+                    setAlertMsg({ type: 'error', text: 'NIS tidak valid!' });
+                    setTimeout(() => setAlertMsg({ type:'', text:'' }), 3000);
+                    return;
+                }
+
+                const newLog = {
+                    id: Date.now(),
+                    nis: manualNis.substring(0,5),
+                    name: manualName,
+                    kelas: manualKelas,
+                    date: manualDate,
+                    time: "-", // Manual tidak ada jam
+                    timestamp: new Date().toISOString(),
+                    location: "Input Admin",
+                    status: manualStatus
+                };
+
+                setLogs(prev => [newLog, ...prev]);
+
+                // Kirim ke GS
+                if (CONFIG.googleSheetUrl && CONFIG.googleSheetUrl.includes("script.google.com")) {
+                    fetch(CONFIG.googleSheetUrl, {
+                        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newLog)
+                    }).catch(e => console.log(e));
+                }
+
+                setAlertMsg({ type: 'success', text: `Data ${manualStatus} untuk ${manualName} disimpan.` });
+                setManualNis('');
+                setTimeout(() => setAlertMsg({ type:'', text:'' }), 4000);
+            };
+
+            // Fungsi Download CSV
+            const downloadCSV = (dataArray, filename) => {
+                if (dataArray.length === 0) { alert("Data kosong"); return; }
+                const headers = Object.keys(dataArray[0]).join(",");
+                const rows = dataArray.map(obj => Object.values(obj).map(val => `"${val}"`).join(","));
+                const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows.join("\n");
+                
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `${filename}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            const getDailyData = () => logs.filter(l => l.date === selectedDate);
+            
+            const getMonthlyData = () => {
+                const monthlyLogs = logs.filter(l => l.date.startsWith(selectedMonth));
+                return STUDENTS.map(stu => {
+                    const stuLogs = monthlyLogs.filter(l => l.nis === stu.nis);
+                    return {
+                        ...stu,
+                        totalTerlambat: stuLogs.filter(l => l.status === 'Terlambat').length,
+                        totalSakit: stuLogs.filter(l => l.status === 'Sakit').length,
+                        totalIzin: stuLogs.filter(l => l.status === 'Izin').length,
+                        totalAlpha: stuLogs.filter(l => l.status === 'Alpha').length,
+                    };
+                });
+            };
+
+            return (
+                <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
+                    {/* Admin Navigation */}
+                    <div className="flex border-b-2 border-gray-100 mb-8 overflow-x-auto">
+                        <button onClick={() => setAdminTab('input')} className={`px-6 py-4 font-bold text-sm whitespace-nowrap transition-colors relative ${adminTab === 'input' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-700'}`}>
+                            <i className="fa-solid fa-pen-to-square mr-2"></i> Input Manual
+                            {adminTab === 'input' && <div className="absolute bottom-[-2px] left-0 w-full h-1 bg-blue-600 rounded-t-lg"></div>}
+                        </button>
+                        <button onClick={() => setAdminTab('daily')} className={`px-6 py-4 font-bold text-sm whitespace-nowrap transition-colors relative ${adminTab === 'daily' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-700'}`}>
+                            <i className="fa-solid fa-calendar-day mr-2"></i> Rekap Harian
+                            {adminTab === 'daily' && <div className="absolute bottom-[-2px] left-0 w-full h-1 bg-blue-600 rounded-t-lg"></div>}
+                        </button>
+                        <button onClick={() => setAdminTab('monthly')} className={`px-6 py-4 font-bold text-sm whitespace-nowrap transition-colors relative ${adminTab === 'monthly' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-700'}`}>
+                            <i className="fa-solid fa-chart-pie mr-2"></i> Rekap Bulanan
+                            {adminTab === 'monthly' && <div className="absolute bottom-[-2px] left-0 w-full h-1 bg-blue-600 rounded-t-lg"></div>}
+                        </button>
+                    </div>
+
+                    {/* PANEL: INPUT MANUAL */}
+                    {adminTab === 'input' && (
+                        <div className="max-w-md mx-auto animate-zoom-in">
+                            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 shadow-sm">
+                                <h3 className="text-xl font-black text-blue-900 mb-6 flex items-center gap-2">
+                                    <i className="fa-solid fa-clipboard-user"></i> Form Ketidakhadiran
+                                </h3>
+                                
+                                <form onSubmit={handleManualSubmit} className="space-y-5">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">NIS Siswa</label>
+                                        <input 
+                                            type="number" 
+                                            value={manualNis} 
+                                            onChange={(e) => setManualNis(e.target.value)} 
+                                            className="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                            placeholder="Ketik 5 digit NIS..."
+                                            required 
+                                        />
+                                    </div>
+                                    
+                                    <div className={`p-4 rounded-xl border font-bold text-center ${manualName === 'Siswa tidak ditemukan' ? 'bg-red-50 border-red-200 text-red-600' : manualName ? 'bg-white border-gray-200 text-gray-800 shadow-sm' : 'bg-gray-100 border-gray-200 text-gray-400'}`}>
+                                        {manualName ? `${manualName} ${manualKelas !== '-' ? `(${manualKelas})` : ''}` : 'Data Otomatis'}
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Tanggal</label>
+                                            <input 
+                                                type="date" 
+                                                value={manualDate} 
+                                                onChange={(e) => setManualDate(e.target.value)} 
+                                                className="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                                                required 
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Status</label>
+                                            <select 
+                                                value={manualStatus} 
+                                                onChange={(e) => setManualStatus(e.target.value)}
+                                                className="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none font-bold"
+                                            >
+                                                <option value="Sakit">Sakit</option>
+                                                <option value="Izin">Izin</option>
+                                                <option value="Alpha">Alpha</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 mt-2">
+                                        <i className="fa-solid fa-paper-plane"></i> Simpan Data
+                                    </button>
+                                </form>
+
+                                {alertMsg.text && (
+                                    <div className={`mt-4 p-4 rounded-xl text-sm font-bold flex items-center gap-3 animate-zoom-in ${alertMsg.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                                        <i className={`fa-solid text-lg ${alertMsg.type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check'}`}></i>
+                                        {alertMsg.text}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* PANEL: REKAP HARIAN */}
+                    {adminTab === 'daily' && (
+                        <div className="animate-zoom-in space-y-4">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 p-4 rounded-2xl border border-gray-200 gap-4">
+                                <div className="flex items-center gap-3 w-full sm:w-auto">
+                                    <label className="font-bold text-gray-600">Pilih Tanggal:</label>
+                                    <input 
+                                        type="date" 
+                                        value={selectedDate} 
+                                        onChange={(e) => setSelectedDate(e.target.value)} 
+                                        className="p-2 border border-gray-300 rounded-lg font-bold text-blue-800 outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <button 
+                                    onClick={() => downloadCSV(getDailyData().map((l, i) => ({ No: i+1, NIS: "'"+l.nis, Nama: l.name, Kelas: l.kelas, Status: l.status, Jam: l.time })), `Rekap_Harian_${selectedDate}`)}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-bold shadow transition flex items-center gap-2 w-full sm:w-auto justify-center"
+                                >
+                                    <i className="fa-solid fa-download"></i> Unduh CSV
+                                </button>
+                            </div>
+
+                            <div className="overflow-x-auto border border-gray-200 rounded-xl">
+                                <table className="w-full text-left border-collapse whitespace-nowrap">
+                                    <thead>
+                                        <tr className="bg-gray-100 text-gray-600 text-sm">
+                                            <th className="p-4 font-bold border-b">NIS</th>
+                                            <th className="p-4 font-bold border-b">Nama Siswa</th>
+                                            <th className="p-4 font-bold border-b text-center">Kelas</th>
+                                            <th className="p-4 font-bold border-b text-center">Status</th>
+                                            <th className="p-4 font-bold border-b text-center">Jam</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-sm">
+                                        {getDailyData().length === 0 ? (
+                                            <tr><td colSpan="5" className="p-8 text-center text-gray-400 font-medium italic">Tidak ada presensi pada tanggal ini.</td></tr>
+                                        ) : (
+                                            getDailyData().map(log => (
+                                                <tr key={log.id} className="hover:bg-blue-50 transition border-b border-gray-100">
+                                                    <td className="p-4 font-mono text-gray-500">{log.nis}</td>
+                                                    <td className="p-4 font-bold text-gray-800">{log.name}</td>
+                                                    <td className="p-4 text-center font-medium text-gray-600">{log.kelas}</td>
+                                                    <td className="p-4 text-center">
+                                                        <span className={`px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider
+                                                            ${log.status === 'Hadir' ? 'bg-green-100 text-green-700' : 
+                                                              log.status === 'Terlambat' ? 'bg-orange-100 text-orange-700' : 
+                                                              log.status === 'Sakit' ? 'bg-yellow-100 text-yellow-700' : 
+                                                              log.status === 'Izin' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}
+                                                        >
+                                                            {log.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-4 text-center font-bold text-gray-600">{log.time}</td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* PANEL: REKAP BULANAN */}
+                    {adminTab === 'monthly' && (
+                        <div className="animate-zoom-in space-y-4">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 p-4 rounded-2xl border border-gray-200 gap-4">
+                                <div className="flex items-center gap-3 w-full sm:w-auto">
+                                    <label className="font-bold text-gray-600">Pilih Bulan:</label>
+                                    <input 
+                                        type="month" 
+                                        value={selectedMonth} 
+                                        onChange={(e) => setSelectedMonth(e.target.value)} 
+                                        className="p-2 border border-gray-300 rounded-lg font-bold text-blue-800 outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <button 
+                                    onClick={() => downloadCSV(getMonthlyData().map((s, i) => ({ No: i+1, NIS: "'"+s.nis, Nama: s.name, Kelas: s.kelas, Terlambat: s.totalTerlambat, Sakit: s.totalSakit, Izin: s.totalIzin, Alpha: s.totalAlpha })), `Rekap_Bulanan_${selectedMonth}`)}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-bold shadow transition flex items-center gap-2 w-full sm:w-auto justify-center"
+                                >
+                                    <i className="fa-solid fa-download"></i> Unduh Rekap CSV
+                                </button>
+                            </div>
+
+                            <div className="overflow-x-auto border border-gray-200 rounded-xl">
+                                <table className="w-full text-left border-collapse whitespace-nowrap">
+                                    <thead>
+                                        <tr className="bg-gray-100 text-gray-600 text-sm">
+                                            <th className="p-4 font-bold border-b">NIS</th>
+                                            <th className="p-4 font-bold border-b">Nama Siswa</th>
+                                            <th className="p-4 font-bold border-b text-center">Kelas</th>
+                                            <th className="p-4 font-bold border-b text-center">Terlambat</th>
+                                            <th className="p-4 font-bold border-b text-center">Sakit</th>
+                                            <th className="p-4 font-bold border-b text-center">Izin</th>
+                                            <th className="p-4 font-bold border-b text-center">Alpha</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-sm">
+                                        {getMonthlyData().map(stu => (
+                                            <tr key={stu.nis} className="hover:bg-blue-50 transition border-b border-gray-100">
+                                                <td className="p-4 font-mono text-gray-500">{stu.nis}</td>
+                                                <td className="p-4 font-bold text-gray-800">{stu.name}</td>
+                                                <td className="p-4 text-center font-medium text-gray-600">{stu.kelas}</td>
+                                                <td className="p-4 text-center">
+                                                    <span className={`inline-block w-8 py-1 rounded text-xs font-black ${stu.totalTerlambat > 0 ? 'bg-orange-500 text-white' : 'text-gray-300'}`}>{stu.totalTerlambat}</span>
+                                                </td>
+                                                <td className="p-4 text-center">
+                                                    <span className={`inline-block w-8 py-1 rounded text-xs font-black ${stu.totalSakit > 0 ? 'bg-yellow-400 text-yellow-900' : 'text-gray-300'}`}>{stu.totalSakit}</span>
+                                                </td>
+                                                <td className="p-4 text-center">
+                                                    <span className={`inline-block w-8 py-1 rounded text-xs font-black ${stu.totalIzin > 0 ? 'bg-blue-500 text-white' : 'text-gray-300'}`}>{stu.totalIzin}</span>
+                                                </td>
+                                                <td className="p-4 text-center">
+                                                    <span className={`inline-block w-8 py-1 rounded text-xs font-black ${stu.totalAlpha > 0 ? 'bg-red-500 text-white' : 'text-gray-300'}`}>{stu.totalAlpha}</span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
